@@ -41,7 +41,7 @@ embedded systems: **40 hours** of intensive training at IIT Madras Research Park
 ---
 
 ## Live Demos
-Open **[`demos/index.html`](demos/index.html)** in any web browser. It needs no installation or server and works offline.
+**[Open the live demos](https://sundarrajnitish.github.io/Kaizen-Robotics-Program/demos/)**, or open [`demos/index.html`](demos/index.html) from a local copy. They need no installation or server and work offline.
 
 Each demo runs a JavaScript port of the robot's real firmware, one case for every branch of the C / Arduino code,
 inside a small physics simulation. You can drag the robot, drop obstacles, tilt a virtual accelerometer or turn a
@@ -130,8 +130,8 @@ Counts IR pulses from a spinning shaft for 15 s and shows the RPM on a 16x2 LCD.
 </tr>
 </table>
 
-> **Tip:** the `▶` links above open the HTML source on GitHub. To run a demo, clone or download the repository and open the file
-> in a browser. If GitHub Pages is enabled for this repository, the same pages are served under `/demos/`.
+> **Run them online:** **https://sundarrajnitish.github.io/Kaizen-Robotics-Program/demos/** (GitHub Pages).
+> The `▶` links above open the page source on GitHub; to run a demo offline, download the repository and open the file in a browser.
 
 ---
 
@@ -194,7 +194,7 @@ Kaizen-Robotics-Program/
 
 ## Getting Started
 
-**Run the demos**
+**Run the demos**: online at https://sundarrajnitish.github.io/Kaizen-Robotics-Program/demos/, or locally:
 ```bash
 git clone https://github.com/sundarrajnitish/Kaizen-Robotics-Program.git
 # then open Kaizen-Robotics-Program/demos/index.html in a browser
