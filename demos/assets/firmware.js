@@ -270,7 +270,7 @@
         { c: 's', x: [365, 465], y: [350, 450] }, { c: 'f', y: [415, 515] },
         { c: 'o', y: [300, 400] }, { c: 'r', x: [415, 515] }, { c: 'l', x: [300, 400] },
     ];
-    F.GestureRemote.rest = { x: 415, y: 407 };
+    F.GestureRemote.rest = { x: 408, y: 408 };     // only 401..414 on both axes is 's' alone
 
     // Level 2/Assignments/Assignment_Arm_Remote/Assignment_Arm_Remote.ino
     F.ArmRemote = function* (io) {
