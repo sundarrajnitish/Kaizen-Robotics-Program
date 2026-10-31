@@ -43,6 +43,8 @@ embedded systems: **40 hours** of intensive training at IIT Madras Research Park
 ## Live Demos
 **[Open the live demos](https://sundarrajnitish.github.io/Kaizen-Robotics-Program/demos/)**, or open [`demos/index.html`](demos/index.html) from a local copy. They need no installation or server and work offline.
 
+The single-page workbench includes all 15 experiments, search, level filters, light/dark themes, and an optional guide. Select an experiment to run it in place; switching experiments resets its simulation. The design follows the workbench style of the FARM-E and RTMC-HG labs.
+
 Each demo runs a JavaScript port of the robot's real firmware, one case for every branch of the C / Arduino code,
 inside a small physics simulation. You can drag the robot, drop obstacles, tilt a virtual accelerometer or turn a
 potentiometer and see how the firmware reacts.
@@ -245,3 +247,7 @@ switch (PIND)
 ```
 
 <div align="center"><sub>Kaizen Robotics Program · IIT Madras Research Park, Chennai</sub></div>
+
+### Updating the lab
+
+The individual demo HTML files remain the simulation sources. After editing one or `demos/experiments.json`, run `python3 tools/build-demos.py` to refresh the offline document bundle. The workbench mounts only the active simulation, so switching releases the previous animation and controls. Run `node demos/tests/run-tests.js` to check firmware behavior.

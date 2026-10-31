@@ -1,132 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kaizen Robotics Program - Live Demos</title>
-<link rel="stylesheet" href="assets/style.css">
-<style>
-    .card .thumb svg { width: 100%; height: 100%; }
-    .note { margin: 4px 28px 30px; color: var(--muted); font-size: 14px; max-width: 980px; }
-</style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Explore 15 robotics experiments in one interactive lab. Drive robots, change sensors and watch the firmware respond.">
+<title>Kaizen / Robotics Lab</title>
+<link rel="stylesheet" href="assets/lab.css">
+<script defer src="assets/experiments.js"></script><script defer src="assets/lab.js"></script>
 </head>
 <body>
-<header class="top">
-    <h1>Kaizen Robotics Program &ndash; Live Demos</h1>
-    <span class="tag">runs in your browser, no install</span>
-</header>
-<p class="lede">
-    Every robot from the program running in a simulator. Each demo runs a JavaScript port of the robot's
-    firmware, one case per branch of the real C / Arduino code, and shows the input pins, the output pins and
-    which line of logic is active. Use these pages to see what each robot does and how its code decides.
-</p>
-
-<section class="level">
-    <h2>Level 1 &middot; ATmega16, register-level Embedded C</h2>
-    <div class="grid">
-        <a class="card" href="pwm-adc.html">
-            <div class="thumb"><svg viewBox="0 0 200 100"><polyline points="10,70 30,70 30,30 60,30 60,70 70,70 70,30 100,30 100,70 110,70 110,30 140,30 140,70 150,70 150,30 180,30 180,70 190,70" fill="none" stroke="#16a34a" stroke-width="4"/></svg></div>
-            <div class="body"><h3>PWM &amp; ADC Speed Control</h3>
-                <p>Blink a pin with different pulse widths, then set motor speed from a potentiometer through the ADC.</p>
-                <div class="files">PWM.c &middot; SpeedCntrl.c</div></div>
-        </a>
-        <a class="card" href="line-follower.html?fw=LFR">
-            <div class="thumb"><svg viewBox="0 0 200 100"><path d="M20,80 C60,80 60,20 100,20 S140,80 180,80" fill="none" stroke="#111" stroke-width="9"/><rect x="88" y="10" width="26" height="20" rx="4" fill="#1f7a4d"/></svg></div>
-            <div class="body"><h3>Line Follower Robot</h3>
-                <p>Two IR sensors straddle a black line; beeps at crossings.</p>
-                <div class="files">LFR.c</div></div>
-        </a>
-        <a class="card" href="obstacle-avoider.html">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="120" y="25" width="40" height="40" fill="#e8833a"/><rect x="50" y="40" width="30" height="22" rx="4" fill="#2563eb"/><path d="M80,51 L118,38 L118,64 Z" fill="rgba(220,38,38,0.25)"/></svg></div>
-            <div class="body"><h3>Obstacle Avoider Robot</h3>
-                <p>Three proximity sensors and a timed escape manoeuvre for every obstacle pattern.</p>
-                <div class="files">OAR.c</div></div>
-        </a>
-        <a class="card" href="line-follower.html?fw=OARLFR">
-            <div class="thumb"><svg viewBox="0 0 200 100"><line x1="10" y1="60" x2="190" y2="60" stroke="#111" stroke-width="9"/><rect x="130" y="40" width="24" height="24" fill="#e8833a"/><rect x="70" y="49" width="30" height="22" rx="4" fill="#1f7a4d"/></svg></div>
-            <div class="body"><h3>Obstacle Avoiding Line Follower</h3>
-                <p>Follows the line and waits whenever something blocks the path.</p>
-                <div class="files">OARLFR.c</div></div>
-        </a>
-        <a class="card" href="table-top.html">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="0" y="0" width="200" height="100" fill="#3b3f46"/><rect x="30" y="15" width="140" height="70" fill="#c99a62"/><rect x="120" y="35" width="34" height="24" rx="4" fill="#7c3aed"/></svg></div>
-            <div class="body"><h3>Table Top Robot</h3>
-                <p>Four edge sensors keep it from driving off the table.</p>
-                <div class="files">TTR.c</div></div>
-        </a>
-        <a class="card" href="serial-control.html?fw=TTL">
-            <div class="thumb"><svg viewBox="0 0 200 100"><text x="30" y="62" font-family="monospace" font-size="34" fill="#16a34a">F B L R</text></svg></div>
-            <div class="body"><h3>Serial Communication (TTL dongle)</h3>
-                <p>Drive the robot from a PC terminal over the UART, one character at a time.</p>
-                <div class="files">TTL.c</div></div>
-        </a>
-        <a class="card" href="line-follower.html?fw=ALFR">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="60" y="20" width="80" height="12" fill="#64748b"/><rect x="60" y="68" width="80" height="12" fill="#64748b"/><line x1="10" y1="50" x2="190" y2="50" stroke="#111" stroke-width="9"/><rect x="85" y="40" width="30" height="22" rx="4" fill="#1f7a4d"/></svg></div>
-            <div class="body"><h3>Advanced Line Follower (competition)</h3>
-                <p>Junction beeps, obstacle alarm and potentiometer-set slow speed inside caves.</p>
-                <div class="files">ALFR.c &middot; ALFR(Arduino).ino</div></div>
-        </a>
-        <a class="card" href="serial-control.html?fw=WC">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="40" y="35" width="40" height="30" rx="5" fill="#0f766e"/><path d="M80,50 A70,70 0 0 1 150,20 M80,50 A70,70 0 0 0 150,80" fill="none" stroke="#94a3b8" stroke-width="3"/><rect x="160" y="20" width="14" height="60" fill="#e8833a"/></svg></div>
-            <div class="body"><h3>Bluetooth Wheelchair (final project)</h3>
-                <p>Phone-controlled over HC-05, stops and backs off when the ultrasonic sensor sees an obstacle.</p>
-                <div class="files">WC.c</div></div>
-        </a>
-    </div>
+<a class="skip" href="#workspace">Skip to experiment</a>
+<header class="masthead"><a class="brand" href="#"><span class="brand-icon">K</span> KAIZEN <span>/ ROBOTICS LAB</span></a><nav aria-label="Main"><a href="#workspace">Workbench</a><a href="https://github.com/sundarrajnitish/Kaizen-Robotics-Program" target="_blank" rel="noopener">Source ↗</a><button id="theme" aria-label="Switch to light theme">◐ Theme</button></nav></header>
+<main>
+<section class="hero"><div><p class="eyebrow">SENSORS → DECISIONS → MOVEMENT</p><h1>Small robots.<br><span>Big possibilities.</span></h1><p class="intro">Get behind the code. Change an input, steer a robot, and see exactly how its firmware responds. An entire robotics program, on one workbench.</p><a class="launch" href="#workspace">Explore the lab <span>↗</span></a></div><div class="hero-art" aria-hidden="true"><div class="orbit"></div><div class="robot"><i></i><b>K / 01</b><div class="eyes">● ●</div><i></i></div><span class="annotation a">IR SENSOR ARRAY</span><span class="annotation b">DIFFERENTIAL DRIVE</span><span class="coordinate">X: 240 &nbsp; Y: 180 &nbsp; θ: 0°</span></div></section>
+<div class="stats"><span><b>15</b> experiments</span><span><b>02</b> learning levels</span><span><b>C + Arduino</b> firmware logic</span><span class="status"><i></i> Browser simulation · works offline</span></div>
+<section class="workbench" id="workspace" aria-label="Interactive robotics workbench">
+<aside class="library"><div class="library-head"><p class="eyebrow">EXPERIMENT LIBRARY</p><span id="count">15</span></div><label class="search"><span class="sr-only">Search experiments</span><input id="search" type="search" placeholder="Search robots, sensors…"></label><div class="filters" role="group" aria-label="Filter by level"><button data-level="0" aria-pressed="true">All</button><button data-level="1" aria-pressed="false">Level 1</button><button data-level="2" aria-pressed="false">Level 2</button></div><div id="experiments"></div><p id="empty" hidden>No experiments match. Try “line” or clear the filter.</p></aside>
+<div class="workspace-content"><div class="experiment-heading"><div><p class="eyebrow" id="meta"></p><h2 id="title"></h2></div><button id="next" title="Open next experiment">Next experiment →</button></div><p id="description"></p><div class="workspace-tools"><span><i></i> LIVE WORKSPACE</span><label><input id="explain" type="checkbox" checked> Show guide</label><button id="restart">↻ Restart</button></div><p id="loading" role="status">Loading experiment…</p><iframe id="simulation" title="Interactive robot simulation" scrolling="no"></iframe><noscript>Enable JavaScript to run the interactive simulations.</noscript></div>
 </section>
-
-<section class="level">
-    <h2>Level 2 &middot; Arduino</h2>
-    <div class="grid">
-        <a class="card" href="gesture.html?fw=RFRemote">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="30" y="30" width="50" height="40" rx="6" fill="#334155"/><path d="M95,50 q10,-12 20,0 q10,12 20,0" fill="none" stroke="#2563eb" stroke-width="4"/><rect x="145" y="38" width="30" height="24" rx="4" fill="#b45309"/></svg></div>
-            <div class="body"><h3>Gesture &amp; RF Remote Control</h3>
-                <p>Tilt a virtual MEMS accelerometer; the remote sends letters, the robot drives.</p>
-                <div class="files">Level2_Remote.ino &middot; Level2_Remote2.ino &middot; Assignment_Gesture2.ino</div></div>
-        </a>
-        <a class="card" href="gesture.html?fw=ArmRemote">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="40" y="50" width="50" height="30" rx="5" fill="#b45309"/><path d="M80,55 L120,30 L150,45" fill="none" stroke="#475569" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="62" r="10" fill="#ea580c"/></svg></div>
-            <div class="body"><h3>Gesture Pick &amp; Place Robot</h3>
-                <p>Steer by tilt, work the lift and gripper with switches, carry the block to the drop zone.</p>
-                <div class="files">Assignment_Arm_Remote.ino &middot; Assignment_DPDT_Wireless.ino</div></div>
-        </a>
-        <a class="card" href="serial-control.html?fw=ComputerControlled">
-            <div class="thumb"><svg viewBox="0 0 200 100"><rect x="30" y="20" width="80" height="55" rx="4" fill="#334155"/><text x="42" y="55" font-family="monospace" font-size="20" fill="#a7f3d0">wasd</text><rect x="130" y="45" width="40" height="28" rx="4" fill="#1f7a4d"/></svg></div>
-            <div class="body"><h3>Computer Controlled Robot</h3>
-                <p>Keyboard control of the chassis and a two-joint arm, with an LCD showing each key.</p>
-                <div class="files">Computer_Controlled.ino &middot; Speed_Control_Assignment.ino</div></div>
-        </a>
-        <a class="card" href="maze.html?mode=explore">
-            <div class="thumb"><svg viewBox="0 0 200 100"><path d="M30,80 V20 H90 V50 H130 V20 H170 V80 M90,50 V80 H130" fill="none" stroke="#111" stroke-width="7"/><rect x="160" y="70" width="20" height="20" fill="#111"/></svg></div>
-            <div class="body"><h3>Maze Solving Robot</h3>
-                <p>Five line sensors and the left hand rule; records every junction decision.</p>
-                <div class="files">maze_solver.ino</div></div>
-        </a>
-        <a class="card" href="maze.html?mode=replay">
-            <div class="thumb"><svg viewBox="0 0 200 100"><text x="18" y="45" font-family="monospace" font-size="20" fill="#64748b">LUSLUSLLUL</text><text x="60" y="80" font-family="monospace" font-size="24" fill="#16a34a">&#8594; RRRR</text></svg></div>
-            <div class="body"><h3>Shortest Path Algorithm</h3>
-                <p>Removes every dead-end detour from the recorded path, then runs the maze perfectly.</p>
-                <div class="files">ShortestPathAlgorithm.ino</div></div>
-        </a>
-        <a class="card" href="maze.html?mode=return">
-            <div class="thumb"><svg viewBox="0 0 200 100"><path d="M40,70 H160" stroke="#111" stroke-width="7"/><path d="M150,40 H60 l12,-10 M60,40 l12,10" fill="none" stroke="#16a34a" stroke-width="4"/></svg></div>
-            <div class="body"><h3>Maze Return Assignment</h3>
-                <p>After solving the maze, reverse and mirror the path and drive back to the start.</p>
-                <div class="files">Maze_bot_return_final.ino</div></div>
-        </a>
-        <a class="card" href="tachometer.html">
-            <div class="thumb"><svg viewBox="0 0 200 100"><circle cx="100" cy="55" r="38" fill="#1f2937"/><path d="M100,55 L100,17 A38,38 0 0 1 116,20 Z" fill="#f8fafc"/><rect x="88" y="2" width="24" height="12" fill="#ef4444"/></svg></div>
-            <div class="body"><h3>Tachometer</h3>
-                <p>Count IR pulses from a spinning shaft and show the RPM on a 16x2 LCD.</p>
-                <div class="files">Tachometer_Assignment.ino</div></div>
-        </a>
-    </div>
-</section>
-
-<p class="note">
-    Not simulated: <code>Assignment_Potentiometer.ino</code> only drives forward (its speed is set by a
-    potentiometer in hardware). The handwriting robot and the maze-solver projects linked from the main README
-    live in separate repositories.
-</p>
-</body>
-</html>
+<section class="learning"><p class="eyebrow">FROM INPUT TO ACTION</p><h2>Watch the whole decision happen.</h2><div><article><span>01 / SENSE</span><h3>Change the environment</h3><p>Move a robot, place an obstacle, tilt a controller or adjust a signal.</p></article><article><span>02 / DECIDE</span><h3>Follow the firmware</h3><p>Live input registers and highlighted decisions connect the simulation to its source.</p></article><article><span>03 / ACT</span><h3>See the response</h3><p>Watch motor direction, speed and outputs change. Pause, reset and try again.</p></article></div></section>
+</main><footer><span>KAIZEN / Learn by building.</span><span>JavaScript models of the project firmware. Simplified physics, no hardware required.</span></footer>
+</body></html>

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "experiment-1",
+    "url": "pwm-adc.html",
+    "title": "PWM & ADC Speed Control",
+    "description": "Blink a pin with different pulse widths, then set motor speed from a potentiometer through the ADC.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><polyline points=\"10,70 30,70 30,30 60,30 60,70 70,70 70,30 100,30 100,70 110,70 110,30 140,30 140,70 150,70 150,30 180,30 180,70 190,70\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"4\"/></svg>"
+  },
+  {
+    "id": "experiment-2",
+    "url": "line-follower.html?fw=LFR",
+    "title": "Line Follower Robot",
+    "description": "Two IR sensors straddle a black line; beeps at crossings.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><path d=\"M20,80 C60,80 60,20 100,20 S140,80 180,80\" fill=\"none\" stroke=\"#111\" stroke-width=\"9\"/><rect x=\"88\" y=\"10\" width=\"26\" height=\"20\" rx=\"4\" fill=\"#1f7a4d\"/></svg>"
+  },
+  {
+    "id": "experiment-3",
+    "url": "obstacle-avoider.html",
+    "title": "Obstacle Avoider Robot",
+    "description": "Three proximity sensors and a timed escape manoeuvre for every obstacle pattern.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"120\" y=\"25\" width=\"40\" height=\"40\" fill=\"#e8833a\"/><rect x=\"50\" y=\"40\" width=\"30\" height=\"22\" rx=\"4\" fill=\"#2563eb\"/><path d=\"M80,51 L118,38 L118,64 Z\" fill=\"rgba(220,38,38,0.25)\"/></svg>"
+  },
+  {
+    "id": "experiment-4",
+    "url": "line-follower.html?fw=OARLFR",
+    "title": "Obstacle Avoiding Line Follower",
+    "description": "Follows the line and waits whenever something blocks the path.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><line x1=\"10\" y1=\"60\" x2=\"190\" y2=\"60\" stroke=\"#111\" stroke-width=\"9\"/><rect x=\"130\" y=\"40\" width=\"24\" height=\"24\" fill=\"#e8833a\"/><rect x=\"70\" y=\"49\" width=\"30\" height=\"22\" rx=\"4\" fill=\"#1f7a4d\"/></svg>"
+  },
+  {
+    "id": "experiment-5",
+    "url": "table-top.html",
+    "title": "Table Top Robot",
+    "description": "Four edge sensors keep it from driving off the table.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"0\" y=\"0\" width=\"200\" height=\"100\" fill=\"#3b3f46\"/><rect x=\"30\" y=\"15\" width=\"140\" height=\"70\" fill=\"#c99a62\"/><rect x=\"120\" y=\"35\" width=\"34\" height=\"24\" rx=\"4\" fill=\"#7c3aed\"/></svg>"
+  },
+  {
+    "id": "experiment-6",
+    "url": "serial-control.html?fw=TTL",
+    "title": "Serial Communication (TTL dongle)",
+    "description": "Drive the robot from a PC terminal over the UART, one character at a time.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><text x=\"30\" y=\"62\" font-family=\"monospace\" font-size=\"34\" fill=\"#16a34a\">F B L R</text></svg>"
+  },
+  {
+    "id": "experiment-7",
+    "url": "line-follower.html?fw=ALFR",
+    "title": "Advanced Line Follower (competition)",
+    "description": "Junction beeps, obstacle alarm and potentiometer-set slow speed inside caves.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"60\" y=\"20\" width=\"80\" height=\"12\" fill=\"#64748b\"/><rect x=\"60\" y=\"68\" width=\"80\" height=\"12\" fill=\"#64748b\"/><line x1=\"10\" y1=\"50\" x2=\"190\" y2=\"50\" stroke=\"#111\" stroke-width=\"9\"/><rect x=\"85\" y=\"40\" width=\"30\" height=\"22\" rx=\"4\" fill=\"#1f7a4d\"/></svg>"
+  },
+  {
+    "id": "experiment-8",
+    "url": "serial-control.html?fw=WC",
+    "title": "Bluetooth Wheelchair (final project)",
+    "description": "Phone-controlled over HC-05, stops and backs off when the ultrasonic sensor sees an obstacle.",
+    "level": 1,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"40\" y=\"35\" width=\"40\" height=\"30\" rx=\"5\" fill=\"#0f766e\"/><path d=\"M80,50 A70,70 0 0 1 150,20 M80,50 A70,70 0 0 0 150,80\" fill=\"none\" stroke=\"#94a3b8\" stroke-width=\"3\"/><rect x=\"160\" y=\"20\" width=\"14\" height=\"60\" fill=\"#e8833a\"/></svg>"
+  },
+  {
+    "id": "experiment-9",
+    "url": "gesture.html?fw=RFRemote",
+    "title": "Gesture & RF Remote Control",
+    "description": "Tilt a virtual MEMS accelerometer; the remote sends letters, the robot drives.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"30\" y=\"30\" width=\"50\" height=\"40\" rx=\"6\" fill=\"#334155\"/><path d=\"M95,50 q10,-12 20,0 q10,12 20,0\" fill=\"none\" stroke=\"#2563eb\" stroke-width=\"4\"/><rect x=\"145\" y=\"38\" width=\"30\" height=\"24\" rx=\"4\" fill=\"#b45309\"/></svg>"
+  },
+  {
+    "id": "experiment-10",
+    "url": "gesture.html?fw=ArmRemote",
+    "title": "Gesture Pick & Place Robot",
+    "description": "Steer by tilt, work the lift and gripper with switches, carry the block to the drop zone.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"40\" y=\"50\" width=\"50\" height=\"30\" rx=\"5\" fill=\"#b45309\"/><path d=\"M80,55 L120,30 L150,45\" fill=\"none\" stroke=\"#475569\" stroke-width=\"7\" stroke-linecap=\"round\"/><circle cx=\"160\" cy=\"62\" r=\"10\" fill=\"#ea580c\"/></svg>"
+  },
+  {
+    "id": "experiment-11",
+    "url": "serial-control.html?fw=ComputerControlled",
+    "title": "Computer Controlled Robot",
+    "description": "Keyboard control of the chassis and a two-joint arm, with an LCD showing each key.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><rect x=\"30\" y=\"20\" width=\"80\" height=\"55\" rx=\"4\" fill=\"#334155\"/><text x=\"42\" y=\"55\" font-family=\"monospace\" font-size=\"20\" fill=\"#a7f3d0\">wasd</text><rect x=\"130\" y=\"45\" width=\"40\" height=\"28\" rx=\"4\" fill=\"#1f7a4d\"/></svg>"
+  },
+  {
+    "id": "experiment-12",
+    "url": "maze.html?mode=explore",
+    "title": "Maze Solving Robot",
+    "description": "Five line sensors and the left hand rule; records every junction decision.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><path d=\"M30,80 V20 H90 V50 H130 V20 H170 V80 M90,50 V80 H130\" fill=\"none\" stroke=\"#111\" stroke-width=\"7\"/><rect x=\"160\" y=\"70\" width=\"20\" height=\"20\" fill=\"#111\"/></svg>"
+  },
+  {
+    "id": "experiment-13",
+    "url": "maze.html?mode=replay",
+    "title": "Shortest Path Algorithm",
+    "description": "Removes every dead-end detour from the recorded path, then runs the maze perfectly.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><text x=\"18\" y=\"45\" font-family=\"monospace\" font-size=\"20\" fill=\"#64748b\">LUSLUSLLUL</text><text x=\"60\" y=\"80\" font-family=\"monospace\" font-size=\"24\" fill=\"#16a34a\">&#8594; RRRR</text></svg>"
+  },
+  {
+    "id": "experiment-14",
+    "url": "maze.html?mode=return",
+    "title": "Maze Return Assignment",
+    "description": "After solving the maze, reverse and mirror the path and drive back to the start.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><path d=\"M40,70 H160\" stroke=\"#111\" stroke-width=\"7\"/><path d=\"M150,40 H60 l12,-10 M60,40 l12,10\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"4\"/></svg>"
+  },
+  {
+    "id": "experiment-15",
+    "url": "tachometer.html",
+    "title": "Tachometer",
+    "description": "Count IR pulses from a spinning shaft and show the RPM on a 16x2 LCD.",
+    "level": 2,
+    "icon": "<svg viewBox=\"0 0 200 100\"><circle cx=\"100\" cy=\"55\" r=\"38\" fill=\"#1f2937\"/><path d=\"M100,55 L100,17 A38,38 0 0 1 116,20 Z\" fill=\"#f8fafc\"/><rect x=\"88\" y=\"2\" width=\"24\" height=\"12\" fill=\"#ef4444\"/></svg>"
+  }
+]
