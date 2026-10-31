@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serial &amp; Bluetooth Control - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+    .keys { display: grid; grid-template-columns: repeat(5, 54px); gap: 6px; margin: 6px 0 10px; }
+    .keys .btn { padding: 8px 0; font-family: ui-monospace, monospace; font-size: 15px; user-select: none; touch-action: none; }
+    .keys .btn small { display: block; font-family: system-ui, sans-serif; font-size: 10px; color: var(--muted); }
+    .keys .btn.down { background: var(--accent); color: var(--accent-ink); }
+    .keys .btn.down small { color: var(--accent-ink); }
+    #arm { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Serial &amp; Bluetooth Controlled Robots</h1>
+    <span class="tag">Level 1 &amp; 2 &middot; UART</span>
+</header>
+<p class="lede">
+    These robots are driven one character at a time over a serial link: a USB-TTL dongle from a PC terminal,
+    or an HC-05 Bluetooth module from a phone app. The firmware waits for a byte, looks it up and sets the motors.
+    The Bluetooth wheelchair also checks an ultrasonic sensor after every command and backs away from obstacles.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar">
+                <label class="speed">Firmware <select id="fw"></select></label>
+            </div>
+            <canvas id="world" width="1350" height="840"></canvas>
+            <p class="hint">Click the floor to add a box, click a box to remove it. Drag the robot to move it.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <h2>Send characters</h2>
+            <div class="keys" id="keys"></div>
+            <label class="check"><input type="checkbox" id="hold"> <span id="holdLabel"></span></label>
+            <h3>Bytes sent (newest last)</h3>
+            <div class="serial-log" id="log"></div>
+            <p class="hint" id="uartInfo"></p>
+        </div>
+        <div class="panel">
+            <h2>Robot</h2>
+            <div id="outReg"></div>
+            <dl class="kv" id="pins"></dl>
+            <h3>Motors</h3>
+            <div id="motors"></div>
+            <div id="extra"></div>
+        </div>
+        <div class="panel" id="logic"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>The UART receives one byte at a time. In <code>TTL.c</code>, <code>uart_receive()</code> blocks until
+            the <code>RXC</code> flag says a byte has arrived, then the <code>switch</code> sets <code>PORTB</code>.</li>
+        <li>The motor pattern stays on until the next byte arrives, so a single key press keeps the robot moving.</li>
+        <li><b>WC.c</b> (wheelchair): after each command it fires a 10 &micro;s trigger pulse at the HC-SR04 and times
+            the echo with Timer1 input capture. Closer than 40 cm means stop for 1 s, then reverse for 1 s. The
+            "Bluetooth RC Controller" phone app repeats the key while it is held, which keeps the distance checks going.</li>
+        <li><b>Speed_Control_Assignment.ino</b>: upper-case keys drive at <code>analogWrite(255)</code>, lower-case at 100.</li>
+        <li><b>Computer_Controlled.ino</b>: when no byte is waiting it shows "Start" on the LCD and stops everything every
+            50 ms, so the robot only moves while the terminal keeps sending (hold the key down). Keys i/k and j/l move the arm.</li>
+    </ol>
+    <h2>Keyboard</h2>
+    <p>Keys are sent as typed (Shift for upper case). Arrow keys send the forward/back/left/right character of the selected firmware.</p>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/rigs.js"></script>
+<script>
+(function () {
+    const K = Kaizen, R = KaizenRigs;
+    const SOURCES = {
+        TTL: 'Level 1/TTL Dongle (Communication)/TTL.c',
+        WC: 'Level 1/Final Project/Bluetooth-Controlled-WheelChair-with-Obstacle-Avoidance-master/WC.c',
+        SpeedControl: 'Level 2/Assignments/Speed_Control_Assignment/Speed_Control_Assignment.ino',
+        ComputerControlled: 'Level 2/Computer_Controlled/Computer_Controlled.ino',
+    };
+    const KEYS = {
+        TTL: [['F', 'fwd'], ['B', 'back'], ['L', 'left'], ['R', 'right'], ['S', 'stop']],
+        WC: [['F', 'fwd'], ['B', 'back'], ['L', 'left'], ['R', 'right'], ['S', 'stop']],
+        SpeedControl: [['W', 'FAST'], ['S', 'FAST'], ['A', 'FAST'], ['D', 'FAST'], ['x', 'stop'],
+                       ['w', 'slow'], ['s', 'slow'], ['a', 'slow'], ['d', 'slow']],
+        ComputerControlled: [['w', 'fwd'], ['s', 'back'], ['a', 'left'], ['d', 'right'], ['x', 'stop'],
+                             ['i', 'elbow&uarr;'], ['k', 'elbow&darr;'], ['j', 'wrist&uarr;'], ['l', 'wrist&darr;']],
+    };
+    const ARROWS = {
+        TTL: { ArrowUp: 'F', ArrowDown: 'B', ArrowLeft: 'L', ArrowRight: 'R' },
+        WC: { ArrowUp: 'F', ArrowDown: 'B', ArrowLeft: 'L', ArrowRight: 'R' },
+        SpeedControl: { ArrowUp: 'W', ArrowDown: 'S', ArrowLeft: 'A', ArrowRight: 'D' },
+        ComputerControlled: { ArrowUp: 'w', ArrowDown: 's', ArrowLeft: 'a', ArrowRight: 'd' },
+    };
+    const TABLES = {
+        TTL: [
+            { id: 'F', when: "'F'", meaning: 'Forward', action: 'PORTB = 0b00001010' },
+            { id: 'B', when: "'B'", meaning: 'Backward', action: 'PORTB = 0b00000101' },
+            { id: 'L', when: "'L'", meaning: 'Left', action: 'PORTB = 0b00000110' },
+            { id: 'R', when: "'R'", meaning: 'Right', action: 'PORTB = 0b00001001' },
+            { id: 'other', when: 'other', meaning: 'Anything else', action: 'PORTB = 0 (stop)' },
+        ],
+        SpeedControl: [
+            { id: 'W', when: "'W' / 'w'", meaning: 'Forward', action: 'speed 255 / 100' },
+            { id: 'S', when: "'S' / 's'", meaning: 'Reverse', action: 'speed 255 / 100' },
+            { id: 'A', when: "'A' / 'a'", meaning: 'Spin left', action: 'speed 255 / 100' },
+            { id: 'D', when: "'D' / 'd'", meaning: 'Spin right', action: 'speed 255 / 100' },
+            { id: 'x', when: "'x'", meaning: 'Stop', action: 'all motor pins low' },
+        ],
+        ComputerControlled: [
+            { id: 'idle', when: 'no data', meaning: 'Nothing received', action: 'LCD "Start", stop all every 50 ms' },
+            { id: 'w', when: "'w'", meaning: 'Forward', action: 'drive(1,0,1,0)' },
+            { id: 's', when: "'s'", meaning: 'Reverse', action: 'drive(0,1,0,1)' },
+            { id: 'a', when: "'a'", meaning: 'Spin left', action: 'drive(0,1,1,0)' },
+            { id: 'd', when: "'d'", meaning: 'Spin right', action: 'drive(1,0,0,1)' },
+            { id: 'x', when: "'x'", meaning: 'Stop', action: 'stop_all()' },
+            { id: 'i', when: "'i' / 'k'", meaning: 'Elbow up / down', action: 'joint(ELBOW)' },
+            { id: 'j', when: "'j' / 'l'", meaning: 'Wrist up / down', action: 'joint(WRIST)' },
+        ],
+    };
+    TABLES.WC = TABLES.TTL.map(r => ({ ...r, action: { L: 'PORTB = 0b00001001', R: 'PORTB = 0b00000110' }[r.id] || r.action }))
+        .concat([{ id: 'obstacle', when: '&le; 40 cm', meaning: 'HC-SR04 echo too short', action: 'Stop 1 s, reverse 1 s' }]);
+    const HOLD_DEFAULT = { TTL: false, WC: true, SpeedControl: false, ComputerControlled: true };
+
+    const fwSelect = document.getElementById('fw');
+    for (const [key, fw] of Object.entries(R.SERIAL_FIRMWARE)) fwSelect.append(new Option(fw.label, key));
+    const holdBox = document.getElementById('hold');
+    const extra = document.getElementById('extra');
+    let rig, outReg, table, lcd, armCanvas, held = null, lastSend = -1e9;
+
+    function send(ch) { rig.io.uart.send(ch); }
+
+    function build(name) {
+        const fw = R.SERIAL_FIRMWARE[name];
+        const placed = rig ? rig.world.obstacles : undefined;
+        extra.innerHTML = '';
+        lcd = armCanvas = null;
+        if (fw.arm) {
+            extra.append(K.el('h3', '', 'LCD'));
+            lcd = K.lcd(extra);
+            extra.append(K.el('h3', '', 'Arm (side view)'));
+            armCanvas = K.el('canvas');
+            armCanvas.id = 'arm';
+            armCanvas.width = 340; armCanvas.height = 150;
+            extra.append(armCanvas);
+        }
+        if (fw.sonar) extra.append(K.el('p', 'hint', '<span id="sonar"></span>'));
+        rig = R.serialRobot(name, { obstacles: placed, lcd: lcd || undefined });
+
+        const outBox = document.getElementById('outReg');
+        outBox.innerHTML = '';
+        outReg = fw.level === 1 ? K.registerView(outBox, 'PORTB (outputs)', K.PORTB_LABELS,
+            fw.mirrored ? 'Wheelchair motors are mounted mirrored, so L and R use swapped patterns.' : '') : null;
+        document.getElementById('pins').hidden = fw.level === 1;
+
+        const logic = document.getElementById('logic');
+        logic.innerHTML = '';
+        table = K.decisionTable(logic, 'Firmware logic &ndash; ' + fw.label, TABLES[name], K.source(SOURCES[name]));
+
+        const keys = document.getElementById('keys');
+        keys.innerHTML = '';
+        for (const [ch, label] of KEYS[name]) {
+            const b = K.el('button', 'btn', `${ch}<small>${label}</small>`);
+            b.dataset.ch = ch;
+            b.addEventListener('pointerdown', ev => { ev.preventDefault(); press(ch); });
+            b.addEventListener('pointerup', () => release(ch));
+            b.addEventListener('pointerleave', () => release(ch));
+            keys.append(b);
+        }
+        holdBox.checked = HOLD_DEFAULT[name];
+        document.getElementById('holdLabel').textContent = fw.level === 1
+            ? 'Hold to repeat, like the Android RC app (sends S on release)'
+            : 'Hold to repeat, like keyboard auto-repeat';
+        if (sim) { sim.world = rig.world; sim.robot = rig.robot; }
+    }
+
+    function press(ch) {
+        held = ch;
+        send(ch);
+        lastSend = sim.t;
+        document.querySelectorAll('.keys .btn').forEach(b => b.classList.toggle('down', b.dataset.ch === ch));
+    }
+    function release(ch) {
+        if (held !== ch) return;
+        held = null;
+        document.querySelectorAll('.keys .btn').forEach(b => b.classList.remove('down'));
+        if (holdBox.checked && R.SERIAL_FIRMWARE[fwSelect.value].level === 1) send('S');
+    }
+
+    function drawArm() {
+        const c = armCanvas, ctx = c.getContext('2d'), a = rig.io.jointAngle;
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(40, 120, 90, 18);
+        const base = [85, 120];
+        const e = -0.2 - a.elbow * 1.2, len1 = 90;
+        const p1 = [base[0] + Math.cos(e) * len1, base[1] + Math.sin(e) * len1];
+        const w = e + 0.6 - a.wrist * 1.6, len2 = 70;
+        const p2 = [p1[0] + Math.cos(w) * len2, p1[1] + Math.sin(w) * len2];
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#1f7a4d'; ctx.lineWidth = 12;
+        ctx.beginPath(); ctx.moveTo(...base); ctx.lineTo(...p1); ctx.stroke();
+        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 9;
+        ctx.beginPath(); ctx.moveTo(...p1); ctx.lineTo(...p2); ctx.stroke();
+        ctx.fillStyle = '#111';
+        for (const p of [base, p1]) { ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI * 2); ctx.fill(); }
+        ctx.font = '12px system-ui, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(`elbow ${(a.elbow * 100).toFixed(0)}%   wrist ${(a.wrist * 100).toFixed(0)}%`, 160, 140);
+    }
+
+    let sim = null;
+    const initial = new URLSearchParams(location.search).get('fw');
+    if (R.SERIAL_FIRMWARE[initial]) fwSelect.value = initial;
+    build(fwSelect.value);
+    const motors = K.motorView(document.getElementById('motors'));
+    sim = new K.Sim({
+        canvas: document.getElementById('world'),
+        world: rig.world,
+        robot: rig.robot,
+        tick: t => {
+            if (held && holdBox.checked && t - lastSend >= 50) { send(held); lastSend = t; }
+            rig.tick(t);
+        },
+        onPointer: (type, x, y) => K.obstacleEditor(rig.world, { size: 50 })(type, x, y),
+        draw: ctx => {
+            const s = rig.robot.sensors[0];
+            if (!s || s.wx === undefined) return;
+            // 40 cm stop distance marker
+            ctx.save();
+            ctx.strokeStyle = 'rgba(220,38,38,0.6)';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(s.wx, s.wy, 40 * R.PX_PER_CM, rig.robot.heading - 0.5, rig.robot.heading + 0.5);
+            ctx.stroke();
+            ctx.restore();
+        },
+        onFrame: () => {
+            const fw = R.SERIAL_FIRMWARE[fwSelect.value];
+            if (outReg) outReg.update(rig.portb);
+            else {
+                const j = rig.io.joints;
+                document.getElementById('pins').innerHTML =
+                    `<dt>Left motor</dt><dd>${rig.robot.target.left.toFixed(2)}</dd><dt>Right motor</dt><dd>${rig.robot.target.right.toFixed(2)}</dd>` +
+                    (fw.arm ? `<dt>Elbow motor</dt><dd>${j.elbow}</dd><dt>Wrist motor</dt><dd>${j.wrist}</dd>` : '');
+            }
+            motors.update(rig.robot);
+            table.highlight(rig.trace);
+            const log = rig.io.uart.log;
+            document.getElementById('log').textContent = log.slice(-40).join(' ');
+            document.getElementById('uartInfo').textContent =
+                `Receive buffer: ${rig.io.uart.available()}/${rig.io.uart.depth} bytes` +
+                (rig.io.uart.dropped ? `, ${rig.io.uart.dropped} dropped (overrun)` : '');
+            const sonar = document.getElementById('sonar');
+            if (sonar) {
+                const cm = rig.io.sonarCm();
+                sonar.textContent = 'HC-SR04 distance: ' + (cm === 0xffff ? 'no echo (> 4 m)' : cm + ' cm') + ' (stops at 40 cm)';
+            }
+            if (armCanvas) drawArm();
+        },
+    });
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: () => rig.restart() });
+    fwSelect.onchange = () => build(fwSelect.value);
+
+    const keyChar = ev => ARROWS[fwSelect.value][ev.key] || (ev.key.length === 1 ? ev.key : null);
+    addEventListener('keydown', ev => {
+        if (ev.target.matches('select, input[type=text], input[type=number]') || ev.repeat) return;
+        const ch = keyChar(ev);
+        if (!ch) return;
+        if (ev.key.startsWith('Arrow')) ev.preventDefault();
+        press(ch);
+    });
+    addEventListener('keyup', ev => {
+        const ch = keyChar(ev);
+        if (ch && held && ch.toLowerCase() === held.toLowerCase()) release(held);
+    });
+})();
+</script>
+</body>
+</html>

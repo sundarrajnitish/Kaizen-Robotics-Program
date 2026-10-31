@@ -1,44 +1,53 @@
- const int xpin=A0;
-const int ypin=A1;
-int a,b;
+/*
+ * Project : Gesture Remote (accelerometer transmitter)
+ * Level   : Kaizen Robotics Program - Level 2
+ * Board   : ATmega16 (Arduino core)
+ *
+ * Hand-worn MEMS accelerometer remote for the gesture controlled robot.
+ * Transmits one drive command per loop over the wireless serial link:
+ *
+ *   's' stop   'f' forward   'o' reverse   'l' left   'r' right
+ *
+ * The tilt windows overlap; when several match, the later check wins,
+ * exactly as the receiver would see when the characters arrive in order.
+ * The resting X/Y values are printed once at start-up for calibration.
+ *
+ * Wiring:
+ *   A0 <- accelerometer X axis
+ *   A1 <- accelerometer Y axis
+ *   TX -> wireless transmitter module (9600 baud)
+ */
 
-void setup() {
-  Serial.begin(9600);
-  a=analogRead(xpin);
-  Serial.print(a);
-  Serial.print('\t');
-  b=analogRead(ypin);
-  Serial.println(b);
-}
+const int X_PIN = A0;
+const int Y_PIN = A1;
 
-void loop() {
- int x=analogRead(xpin);
- int y=analogRead(ypin);
-
- if (((x<=(465))&&(x>=(365))) && ((y<=(450)) && (y>=(350))))
-
+void print_calibration()
 {
-  Serial.print('s');
+    Serial.print(analogRead(X_PIN));
+    Serial.print('\t');
+    Serial.println(analogRead(Y_PIN));
 }
- if ((y<=(515)) && (y>=415))
 
+void setup()
 {
-  Serial.print('f');
+    Serial.begin(9600);
+    print_calibration();
 }
- if ((y<=(400)) && (y>=300))
 
+void loop()
 {
-  Serial.print('o');
-}
- if ((x<=(515)) && (x>=415))
+    int x = analogRead(X_PIN);
+    int y = analogRead(Y_PIN);
+    char command = 0;
 
-{
-  Serial.print('r');
-}
- if ((x<=(400)) && (x>=300))
+    if (x >= 365 && x <= 465 && y >= 350 && y <= 450) command = 's';   // Level
+    if (y >= 415 && y <= 515)                         command = 'f';   // Tilt forward
+    if (y >= 300 && y <= 400)                         command = 'o';   // Tilt back
+    if (x >= 415 && x <= 515)                         command = 'r';   // Tilt right
+    if (x >= 300 && x <= 400)                         command = 'l';   // Tilt left
 
-{
-  Serial.print('l');
+    if (command)
+    {
+        Serial.print(command);
+    }
 }
-}
- 

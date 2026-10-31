@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obstacle Avoider - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Obstacle Avoider Robot</h1>
+    <span class="tag">Level 1 &middot; ATmega16 &middot; Embedded C &middot; OAR.c</span>
+</header>
+<p class="lede">
+    Three IR proximity sensors look ahead, to the left and to the right. A sensor pulls its pin low when it
+    sees something, so <code>PIND</code> = <code>0b11111111</code> means the way is clear. Each obstacle
+    pattern has its own escape manoeuvre.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar">
+                <button class="btn" id="clear">Clear obstacles</button>
+                <button class="btn" id="defaults">Default room</button>
+            </div>
+            <canvas id="world" width="1350" height="840"></canvas>
+            <p class="hint">Click the floor to add a box, drag a box to move it, click a box to remove it.
+                Drag the robot to move it, drag the blue dot to rotate it.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <h2>Microcontroller I/O</h2>
+            <div id="inReg"></div>
+            <div id="outReg"></div>
+            <h3>Motors</h3>
+            <div id="motors"></div>
+        </div>
+        <div class="panel" id="logic"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>The firmware reads all sensors at once with <code>switch (PIND)</code>; a 0 bit means "obstacle on this side".</li>
+        <li>An obstacle on one side only: the robot simply spins away from it until that sensor clears.</li>
+        <li>Anything in front: it reverses for 300 ms, then turns for 300 ms (<code>back_off_and_turn()</code>).</li>
+        <li>Boxed in on all three sides: it spins right for 2 seconds to find a way out.</li>
+        <li>During a manoeuvre the code is inside <code>_delay_ms()</code>, so it does not look at the sensors until the move is finished.</li>
+    </ol>
+    <h2>Try this</h2>
+    <ul>
+        <li>Drive the robot into a corner (drag it there) and watch which case fires.</li>
+        <li>Build a narrow corridor out of boxes and see how the timed manoeuvres cope.</li>
+    </ul>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/rigs.js"></script>
+<script>
+(function () {
+    const K = Kaizen, R = KaizenRigs;
+    const rig = R.obstacleAvoider();
+    const inReg = K.registerView(document.getElementById('inReg'), 'PIND (inputs)', rig.io.labels, '1 = clear, 0 = obstacle detected.');
+    const outReg = K.registerView(document.getElementById('outReg'), 'PORTB (outputs)', K.PORTB_LABELS);
+    const motors = K.motorView(document.getElementById('motors'));
+    const table = K.decisionTable(document.getElementById('logic'), 'Firmware logic &ndash; OAR.c', [
+        { id: 'clear', when: '11111111', meaning: 'Nothing detected', action: 'Forward' },
+        { id: 'right', when: '11111110', meaning: 'Obstacle right', action: 'Spin left' },
+        { id: 'left', when: '11111011', meaning: 'Obstacle left', action: 'Spin right' },
+        { id: 'backLeft', when: '11111101<br>11111100<br>11111010', meaning: 'Centre, centre+right, or left+right', action: 'Reverse 300 ms, spin left 300 ms' },
+        { id: 'backRight', when: '11111001<br>11110101', meaning: 'Centre+left (or centre+PD3)', action: 'Reverse 300 ms, spin right 300 ms' },
+        { id: 'all', when: '11111000', meaning: 'Obstacles on all sides', action: 'Spin right 2 s' },
+    ], K.source('Level 1/Obstacle Avoider Robot/OAR.c'));
+
+    const sim = new K.Sim({
+        canvas: document.getElementById('world'),
+        world: rig.world,
+        robot: rig.robot,
+        tick: t => rig.tick(t),
+        onPointer: K.obstacleEditor(rig.world, { size: 50 }),
+        onFrame: () => {
+            inReg.update(rig.io.PIND());
+            outReg.update(rig.portb);
+            motors.update(rig.robot);
+            table.highlight(rig.trace);
+        },
+    });
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: () => rig.restart() });
+    document.getElementById('clear').onclick = () => { rig.world.obstacles.length = 0; };
+    document.getElementById('defaults').onclick = () => { rig.world.obstacles.splice(0, Infinity, ...R.defaultBoxes()); };
+})();
+</script>
+</body>
+</html>

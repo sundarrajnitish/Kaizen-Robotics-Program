@@ -80,7 +80,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c
+SRC = SpeedCntrl.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

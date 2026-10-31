@@ -1,130 +1,71 @@
-int lm1 = 24;
-int lm2 = 25;
-int rm1 = 0;
-int rm2 = 1;
-int ena = 12;
-int enb = 13;
+/*
+ * Project : Two-Speed Serial Control
+ * Level   : Kaizen Robotics Program - Level 2 (assignment)
+ * Board   : ATmega16 (Arduino core)
+ *
+ * Drives the robot from a serial terminal with WASD keys. Upper-case keys
+ * move at full speed, lower-case keys at a reduced PWM speed.
+ *
+ *   'W'/'w' forward   'S'/'s' reverse   'A'/'a' left   'D'/'d' right
+ *   'x'     stop
+ *
+ * Wiring:
+ *   RX       <- USB-TTL dongle / wireless receiver (9600 baud)
+ *   D24, D25 -> left motor driver inputs
+ *   D0, D1   -> right motor driver inputs
+ *   D12, D13 -> motor driver enable pins (PWM)
+ */
 
-void Forward()
-{
-  digitalWrite(lm1,1);
-  digitalWrite(lm2,0);
-  digitalWrite(rm1,1);
-  digitalWrite(rm2,0);
-  analogWrite(ena,255);
-  analogWrite(enb,255);
-}
-void ForwardS()
-{
-  digitalWrite(lm1,1);
-  digitalWrite(lm2,0);
-  digitalWrite(rm1,1);
-  digitalWrite(rm2,0);
-  analogWrite(ena,100);
-  analogWrite(enb,100);
-}
-void Stop()
-{
-  digitalWrite(lm1,0);
-  digitalWrite(lm2,0);
-  digitalWrite(rm1,0);
-  digitalWrite(rm2,0);
-  analogWrite(ena,255);
-  analogWrite(enb,255);  
-}
-void Reverse()
-{
-  digitalWrite(lm1,0);
-  digitalWrite(lm2,1);
-  digitalWrite(rm1,0);
-  digitalWrite(rm2,1);
-  analogWrite(ena,255);
-  analogWrite(enb,255);  
-}
-void ReverseS()
-{
-  digitalWrite(lm1,0);
-  digitalWrite(lm2,1);
-  digitalWrite(rm1,0);
-  digitalWrite(rm2,1);
-  analogWrite(ena,100);
-  analogWrite(enb,100);
-}
-void Right()
-{
-  digitalWrite(lm1,1);
-  digitalWrite(lm2,0);
-  digitalWrite(rm1,0);
-  digitalWrite(rm2,1);
-  analogWrite(ena,255);
-  analogWrite(enb,255);  
-}
-void RightS()
-{
-  digitalWrite(lm1,1);
-  digitalWrite(lm2,0);
-  digitalWrite(rm1,0);
-  digitalWrite(rm2,1);
-  analogWrite(ena,100);
-  analogWrite(enb,100);  
-}
-void Left()
-{
-  digitalWrite(lm1,0);
-  digitalWrite(lm2,1);
-  digitalWrite(rm1,1);
-  digitalWrite(rm2,0);
-  analogWrite(ena,255);
-  analogWrite(enb,255);  
-}
-void LeftS()
-{
-  digitalWrite(lm1,0);
-  digitalWrite(lm2,1);
-  digitalWrite(rm1,1);
-  digitalWrite(rm2,0);
-  analogWrite(ena,100);
-  analogWrite(enb,100);
-}
-void setup() {
-  Serial.begin(9600);
+const int LM1 = 24;
+const int LM2 = 25;
+const int RM1 = 0;
+const int RM2 = 1;
+const int ENA = 12;
+const int ENB = 13;
 
-  pinMode(lm1,OUTPUT);
-  pinMode(lm2,OUTPUT);
-  pinMode(rm1,OUTPUT);
-  pinMode(rm2,OUTPUT);
-  pinMode(ena,OUTPUT);
-  pinMode(enb,OUTPUT);
+const int FAST = 255;
+const int SLOW = 100;
 
+void drive(int lm1, int lm2, int rm1, int rm2, int speed)
+{
+    digitalWrite(LM1, lm1);
+    digitalWrite(LM2, lm2);
+    digitalWrite(RM1, rm1);
+    digitalWrite(RM2, rm2);
+    analogWrite(ENA, speed);
+    analogWrite(ENB, speed);
 }
 
-void loop() {
-char c = Serial.read();
- 
-  if(c=='W')
-  Forward();
-  
-  if(c=='w')
-  ForwardS(); 
-  
-  if(c=='S')
-  Reverse();
-  
-  if(c=='s')
-  ReverseS();
-  
-  if(c=='D')
-  Right();
-  
-  if(c=='d')
-  RightS();
-  
-  if(c=='A')
-  Left();
-  
-  if(c=='a')
-  LeftS();
+void forward(int speed)    { drive(1, 0, 1, 0, speed); }
+void reverse(int speed)    { drive(0, 1, 0, 1, speed); }
+void turn_left(int speed)  { drive(0, 1, 1, 0, speed); }
+void turn_right(int speed) { drive(1, 0, 0, 1, speed); }
+void stop_motors()         { drive(0, 0, 0, 0, FAST); }
 
-  if(c=='x')
-  Stop();
+void setup()
+{
+    Serial.begin(9600);
+
+    pinMode(LM1, OUTPUT);
+    pinMode(LM2, OUTPUT);
+    pinMode(RM1, OUTPUT);
+    pinMode(RM2, OUTPUT);
+    pinMode(ENA, OUTPUT);
+    pinMode(ENB, OUTPUT);
+}
+
+void loop()
+{
+    switch (Serial.read())          // -1 when nothing has been received
+    {
+        case 'W': forward(FAST);    break;
+        case 'w': forward(SLOW);    break;
+        case 'S': reverse(FAST);    break;
+        case 's': reverse(SLOW);    break;
+        case 'A': turn_left(FAST);  break;
+        case 'a': turn_left(SLOW);  break;
+        case 'D': turn_right(FAST); break;
+        case 'd': turn_right(SLOW); break;
+        case 'x': stop_motors();    break;
+    }
 }

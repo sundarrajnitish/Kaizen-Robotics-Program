@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = OARLFR
+TARGET = ALFR
 
 
 # Object files directory

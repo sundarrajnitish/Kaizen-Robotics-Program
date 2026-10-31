@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table Top Robot - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Table Top Robot</h1>
+    <span class="tag">Level 1 &middot; ATmega16 &middot; Embedded C &middot; TTR.c</span>
+</header>
+<p class="lede">
+    Four downward-facing IR sensors, one at each corner, read 0 while they see the table and 1 once they
+    are past the edge. The robot roams the table and backs away or turns whenever a sensor goes over the edge.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar"></div>
+            <canvas id="world" width="1350" height="840"></canvas>
+            <p class="hint">Drag the robot to the edge (or drag the blue dot to aim it off the table) and watch it save itself.
+                S1/S2 are the front sensors, S3/S4 the rear ones.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <h2>Microcontroller I/O</h2>
+            <div id="inReg"></div>
+            <div id="outReg"></div>
+            <h3>Motors</h3>
+            <div id="motors"></div>
+            <p class="hint" id="status"></p>
+        </div>
+        <div class="panel" id="logic"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>On the table all four sensors read 0, so <code>PIND</code> is <code>0b11110000</code> and the robot drives forward.</li>
+        <li>If a front sensor leaves the table the robot reverses and turns away; if a rear sensor leaves it drives forward and turns.</li>
+        <li>The manoeuvres are timed with <code>_delay_ms()</code>, so the exact distances depend on the motor speed.</li>
+        <li>Patterns that have no <code>case</code> (for example two diagonal sensors off at once) leave the motors doing whatever they did last.</li>
+    </ol>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/rigs.js"></script>
+<script>
+(function () {
+    const K = Kaizen, R = KaizenRigs;
+    const rig = R.tableTop();
+    const inReg = K.registerView(document.getElementById('inReg'), 'PIND (inputs)', rig.io.labels, '0 = sensor sees the table, 1 = past the edge.');
+    const outReg = K.registerView(document.getElementById('outReg'), 'PORTB (outputs)', K.PORTB_LABELS);
+    const motors = K.motorView(document.getElementById('motors'));
+    const status = document.getElementById('status');
+    const table = K.decisionTable(document.getElementById('logic'), 'Firmware logic &ndash; TTR.c', [
+        { id: 'on', when: '11110000', meaning: 'All sensors on the table', action: 'Forward' },
+        { id: 's1', when: '11111000', meaning: 'S1 off', action: 'Reverse 400 ms, spin right 600 ms' },
+        { id: 's2', when: '11110100', meaning: 'S2 off', action: 'Reverse 400 ms, spin left 300 ms' },
+        { id: 's34', when: '11110010<br>11110001', meaning: 'S3 or S4 off', action: 'Forward 200 ms, spin right 300 ms' },
+        { id: 's12', when: '11111100', meaning: 'S1 and S2 off (front edge)', action: 'Reverse 250 ms, spin right 300 ms' },
+        { id: 'rear', when: '11110011', meaning: 'S3 and S4 off (rear edge)', action: 'Forward' },
+        { id: 'spinL', when: '11111001 11110110<br>11111110 11110111', meaning: 'Side off, or only S1 on', action: 'Spin left' },
+        { id: 'spinR', when: '11111011<br>11111101', meaning: 'Only S2 or only S3 on', action: 'Spin right' },
+    ], K.source('Level 1/Table Top Robot/TTR.c'));
+
+    let fellAt = null;
+    const sim = new K.Sim({
+        canvas: document.getElementById('world'),
+        world: rig.world,
+        robot: rig.robot,
+        tick: t => {
+            if (rig.robot.fallen) return;
+            rig.tick(t);
+        },
+        draw: ctx => {
+            // sensor labels
+            ctx.save();
+            ctx.font = 'bold 11px system-ui, sans-serif';
+            ctx.fillStyle = '#fff';
+            for (const s of rig.robot.sensors) {
+                if (s.wx === undefined) continue;
+                ctx.fillText(s.label, s.wx + 6, s.wy - 6);
+            }
+            ctx.restore();
+        },
+        overlay: ctx => {
+            if (!rig.robot.fallen) { fellAt = null; return; }
+            if (fellAt === null) fellAt = performance.now();
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.55)';
+            ctx.fillRect(0, 0, rig.world.width, rig.world.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 30px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Fell off the table!', rig.world.width / 2, rig.world.height / 2);
+            ctx.font = '16px system-ui, sans-serif';
+            ctx.fillText('Restarting in the middle of the table...', rig.world.width / 2, rig.world.height / 2 + 30);
+            ctx.restore();
+            if (performance.now() - fellAt > 2000) rig.restart();
+        },
+        onFrame: () => {
+            inReg.update(rig.io.PIND());
+            outReg.update(rig.portb);
+            motors.update(rig.robot);
+            table.highlight(rig.trace);
+            const off = rig.robot.sensors.filter(s => rig.robot.readings[s.name]).map(s => s.label);
+            status.textContent = off.length ? 'Over the edge: ' + off.join(', ') : 'All sensors on the table';
+        },
+    });
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: () => rig.restart() });
+})();
+</script>
+</body>
+</html>

@@ -3,24 +3,30 @@ TTL.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000ca  00000000  00000000  00000054  2**1
+  0 .text         000000bc  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  0000011e  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000003a  00000000  00000000  0000013e  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   00000164  00000000  00000000  00000178  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000e8  00000000  00000000  000002dc  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   000001d2  00000000  00000000  000003c4  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000040  00000000  00000000  00000598  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000c3  00000000  00000000  000005d8  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    00000018  00000000  00000000  0000069b  2**0
-                  CONTENTS, READONLY, DEBUGGING
+  1 .data         00000000  00800060  000000bc  00000130  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000012  00000000  00000000  00000130  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000144  2**2
+                  CONTENTS, READONLY, OCTETS
+  4 .debug_aranges 00000020  00000000  00000000  00000180  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  5 .debug_info   000006a7  00000000  00000000  000001a0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  6 .debug_abbrev 0000061e  00000000  00000000  00000847  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  7 .debug_line   0000025a  00000000  00000000  00000e65  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  8 .debug_frame  00000024  00000000  00000000  000010c0  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_str    00000355  00000000  00000000  000010e4  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_loc    0000004c  00000000  00000000  00001439  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_ranges 00000028  00000000  00000000  00001485  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
 
@@ -54,152 +60,136 @@ Disassembly of section .text:
   5a:	d4 e0       	ldi	r29, 0x04	; 4
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
-  60:	0e 94 40 00 	call	0x80	; 0x80 <main>
-  64:	0c 94 63 00 	jmp	0xc6	; 0xc6 <_exit>
+  60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
+  64:	0c 94 5c 00 	jmp	0xb8	; 0xb8 <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-0000006c <uart_init>:
-#include<avr/io.h>
-#include<util/delay.h>
-
-void uart_init() //function to initialise UART
-{
-UBRRH= (myubrr>>8);
-  6c:	10 bc       	out	0x20, r1	; 32
-UBRRL= myubrr;
-  6e:	8c e0       	ldi	r24, 0x0C	; 12
-  70:	89 b9       	out	0x09, r24	; 9
-UCSRB= UCSRB | (1<<RXEN); //enable receiver
-  72:	54 9a       	sbi	0x0a, 4	; 10
-}
-  74:	08 95       	ret
-
-00000076 <UART_RECEIVE>:
-
-unsigned int UART_RECEIVE() //function to receive data
-{
-while((UCSRA&(1<<RXC))==0); //wait while data is being received
-  76:	5f 9b       	sbis	0x0b, 7	; 11
-  78:	fe cf       	rjmp	.-4      	; 0x76 <UART_RECEIVE>
-
-return(UDR); //return 8-bit data
-  7a:	8c b1       	in	r24, 0x0c	; 12
-}
-  7c:	90 e0       	ldi	r25, 0x00	; 0
-  7e:	08 95       	ret
-
-00000080 <main>:
-
-void main () //main
-{
-unsigned char value; // declaring a variable ot save received data
-
-DDRB=0b11111111; //Sets PB6,PB7 as output
-  80:	8f ef       	ldi	r24, 0xFF	; 255
-  82:	87 bb       	out	0x17, r24	; 23
-#include<avr/io.h>
-#include<util/delay.h>
-
-void uart_init() //function to initialise UART
-{
-UBRRH= (myubrr>>8);
-  84:	10 bc       	out	0x20, r1	; 32
-UBRRL= myubrr;
-  86:	8c e0       	ldi	r24, 0x0C	; 12
-  88:	89 b9       	out	0x09, r24	; 9
-UCSRB= UCSRB | (1<<RXEN); //enable receiver
-  8a:	54 9a       	sbi	0x0a, 4	; 10
-    milliseconds can be achieved.
- */
-void
-_delay_loop_2(uint16_t __count)
-{
-	__asm__ volatile (
-  8c:	84 ed       	ldi	r24, 0xD4	; 212
-  8e:	90 e3       	ldi	r25, 0x30	; 48
-  90:	01 97       	sbiw	r24, 0x01	; 1
-  92:	f1 f7       	brne	.-4      	; 0x90 <main+0x10>
-
-if(value=='a') //if data received is 'a'
-PORTB=0b00000110; //Go left
-
-if(value=='d') //if data received is 'd'
-PORTB=0b00001001; //Go right
-  94:	49 e0       	ldi	r20, 0x09	; 9
-
-if(value=='s') //if data received is 's'
-PORTB=0b00000101; //Go reverse
-
-if(value=='a') //if data received is 'a'
-PORTB=0b00000110; //Go left
-  96:	36 e0       	ldi	r19, 0x06	; 6
-
-if(value=='w') //if data received is 'w'
-PORTB=0b00001010; //Go forward
-
-if(value=='s') //if data received is 's'
-PORTB=0b00000101; //Go reverse
-  98:	25 e0       	ldi	r18, 0x05	; 5
-while(1)
-{
-value=UART_RECEIVE(); //save the received data in the variable
-
-if(value=='w') //if data received is 'w'
-PORTB=0b00001010; //Go forward
-  9a:	9a e0       	ldi	r25, 0x0A	; 10
-UCSRB= UCSRB | (1<<RXEN); //enable receiver
+0000006c <main>:
+    return UDR;
 }
 
-unsigned int UART_RECEIVE() //function to receive data
+int main(void)
 {
-while((UCSRA&(1<<RXC))==0); //wait while data is being received
-  9c:	5f 9b       	sbis	0x0b, 7	; 11
-  9e:	fe cf       	rjmp	.-4      	; 0x9c <main+0x1c>
+    DDRB = 0b11111111;              // Port B is an output port
+  6c:	8f ef       	ldi	r24, 0xFF	; 255
+  6e:	87 bb       	out	0x17, r24	; 23
 
-return(UDR); //return 8-bit data
-  a0:	8c b1       	in	r24, 0x0c	; 12
+00000070 <.LBB10>:
+    UBRRH = (uint8_t)(UBRR_VALUE >> 8);
+  70:	10 bc       	out	0x20, r1	; 32
 
-while(1)
-{
-value=UART_RECEIVE(); //save the received data in the variable
+00000072 <.Loc.7>:
+    UBRRL = (uint8_t)UBRR_VALUE;
+  72:	8c e0       	ldi	r24, 0x0C	; 12
+  74:	89 b9       	out	0x09, r24	; 9
 
-if(value=='w') //if data received is 'w'
-  a2:	87 37       	cpi	r24, 0x77	; 119
-  a4:	11 f4       	brne	.+4      	; 0xaa <main+0x2a>
-PORTB=0b00001010; //Go forward
-  a6:	98 bb       	out	0x18, r25	; 24
-  a8:	0c c0       	rjmp	.+24     	; 0xc2 <main+0x42>
+00000076 <.Loc.10>:
+    UCSRB |= (1 << RXEN);           // Enable the receiver
+  76:	54 9a       	sbi	0x0a, 4	; 10
 
-if(value=='s') //if data received is 's'
-  aa:	83 37       	cpi	r24, 0x73	; 115
-  ac:	11 f4       	brne	.+4      	; 0xb2 <main+0x32>
-PORTB=0b00000101; //Go reverse
-  ae:	28 bb       	out	0x18, r18	; 24
-  b0:	08 c0       	rjmp	.+16     	; 0xc2 <main+0x42>
+00000078 <.LBB12>:
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(__builtin_ceil(__builtin_fabs(__tmp)));
+	#endif
 
-if(value=='a') //if data received is 'a'
-  b2:	81 36       	cpi	r24, 0x61	; 97
-  b4:	11 f4       	brne	.+4      	; 0xba <main+0x3a>
-PORTB=0b00000110; //Go left
-  b6:	38 bb       	out	0x18, r19	; 24
-  b8:	04 c0       	rjmp	.+8      	; 0xc2 <main+0x42>
+	__builtin_avr_delay_cycles(__ticks_dc);
+  78:	83 ed       	ldi	r24, 0xD3	; 211
+  7a:	90 e3       	ldi	r25, 0x30	; 48
 
-if(value=='d') //if data received is 'd'
-  ba:	84 36       	cpi	r24, 0x64	; 100
-  bc:	11 f4       	brne	.+4      	; 0xc2 <main+0x42>
-PORTB=0b00001001; //Go right
-  be:	48 bb       	out	0x18, r20	; 24
-  c0:	ed cf       	rjmp	.-38     	; 0x9c <main+0x1c>
+0000007c <.L1^B1>:
+  7c:	01 97       	sbiw	r24, 0x01	; 1
+  7e:	f1 f7       	brne	.-4      	; 0x7c <.L1^B1>
+  80:	00 c0       	rjmp	.+0      	; 0x82 <L0^A>
 
-else 
-PORTB=0b00000000;
-  c2:	18 ba       	out	0x18, r1	; 24
-  c4:	eb cf       	rjmp	.-42     	; 0x9c <main+0x1c>
+00000082 <L0^A>:
+  82:	00 00       	nop
 
-000000c6 <_exit>:
-  c6:	f8 94       	cli
+00000084 <.LBE12>:
+    {
+        switch (uart_receive())
+        {
+            case 'F': PORTB = MOTOR_FORWARD;  break;
+            case 'B': PORTB = MOTOR_BACKWARD; break;
+            case 'L': PORTB = MOTOR_LEFT;     break;
+  84:	96 e0       	ldi	r25, 0x06	; 6
 
-000000c8 <__stop_program>:
-  c8:	ff cf       	rjmp	.-2      	; 0xc8 <__stop_program>
+00000086 <.Loc.21>:
+            case 'R': PORTB = MOTOR_RIGHT;    break;
+  86:	29 e0       	ldi	r18, 0x09	; 9
+
+00000088 <.Loc.22>:
+            case 'B': PORTB = MOTOR_BACKWARD; break;
+  88:	35 e0       	ldi	r19, 0x05	; 5
+
+0000008a <.Loc.23>:
+            case 'F': PORTB = MOTOR_FORWARD;  break;
+  8a:	4a e0       	ldi	r20, 0x0A	; 10
+
+0000008c <.L3>:
+    while ((UCSRA & (1 << RXC)) == 0)
+  8c:	5f 9b       	sbis	0x0b, 7	; 11
+  8e:	fe cf       	rjmp	.-4      	; 0x8c <.L3>
+
+00000090 <.Loc.26>:
+    return UDR;
+  90:	8c b1       	in	r24, 0x0c	; 12
+
+00000092 <.LBE14>:
+        switch (uart_receive())
+  92:	8c 34       	cpi	r24, 0x4C	; 76
+  94:	79 f0       	breq	.+30     	; 0xb4 <.L4>
+  96:	30 f4       	brcc	.+12     	; 0xa4 <.L5>
+  98:	82 34       	cpi	r24, 0x42	; 66
+  9a:	51 f0       	breq	.+20     	; 0xb0 <.L6>
+  9c:	86 34       	cpi	r24, 0x46	; 70
+  9e:	31 f0       	breq	.+12     	; 0xac <.L7>
+
+000000a0 <.L8>:
+            default:  PORTB = MOTOR_STOP;     break;
+  a0:	18 ba       	out	0x18, r1	; 24
+
+000000a2 <.LBB17>:
+    while ((UCSRA & (1 << RXC)) == 0)
+  a2:	f4 cf       	rjmp	.-24     	; 0x8c <.L3>
+
+000000a4 <.L5>:
+        switch (uart_receive())
+  a4:	82 35       	cpi	r24, 0x52	; 82
+  a6:	e1 f7       	brne	.-8      	; 0xa0 <.L8>
+
+000000a8 <.Loc.38>:
+            case 'R': PORTB = MOTOR_RIGHT;    break;
+  a8:	28 bb       	out	0x18, r18	; 24
+
+000000aa <.Loc.40>:
+  aa:	f0 cf       	rjmp	.-32     	; 0x8c <.L3>
+
+000000ac <.L7>:
+            case 'F': PORTB = MOTOR_FORWARD;  break;
+  ac:	48 bb       	out	0x18, r20	; 24
+
+000000ae <.Loc.43>:
+  ae:	ee cf       	rjmp	.-36     	; 0x8c <.L3>
+
+000000b0 <.L6>:
+            case 'B': PORTB = MOTOR_BACKWARD; break;
+  b0:	38 bb       	out	0x18, r19	; 24
+
+000000b2 <.Loc.46>:
+  b2:	ec cf       	rjmp	.-40     	; 0x8c <.L3>
+
+000000b4 <.L4>:
+            case 'L': PORTB = MOTOR_LEFT;     break;
+  b4:	98 bb       	out	0x18, r25	; 24
+
+000000b6 <.Loc.49>:
+  b6:	ea cf       	rjmp	.-44     	; 0x8c <.L3>
+
+000000b8 <_exit>:
+  b8:	f8 94       	cli
+
+000000ba <__stop_program>:
+  ba:	ff cf       	rjmp	.-2      	; 0xba <__stop_program>

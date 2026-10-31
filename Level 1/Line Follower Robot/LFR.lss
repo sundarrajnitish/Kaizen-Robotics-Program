@@ -3,26 +3,30 @@ LFR.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000ba  00000000  00000000  00000054  2**1
+  0 .text         000000ae  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  0000010e  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  0000012e  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   0000012d  00000000  00000000  00000149  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000b5  00000000  00000000  00000276  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   00000188  00000000  00000000  0000032b  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  000004b4  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000e9  00000000  00000000  000004d4  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    00000068  00000000  00000000  000005bd  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  9 .debug_ranges 00000090  00000000  00000000  00000625  2**0
-                  CONTENTS, READONLY, DEBUGGING
+  1 .data         00000000  00800060  000000ae  00000122  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000012  00000000  00000000  00000122  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000134  2**2
+                  CONTENTS, READONLY, OCTETS
+  4 .debug_aranges 00000020  00000000  00000000  00000170  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  5 .debug_info   00000667  00000000  00000000  00000190  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  6 .debug_abbrev 000005d3  00000000  00000000  000007f7  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  7 .debug_line   000001de  00000000  00000000  00000dca  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  8 .debug_frame  00000024  00000000  00000000  00000fa8  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_str    00000337  00000000  00000000  00000fcc  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_loc    0000004e  00000000  00000000  00001303  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_ranges 00000028  00000000  00000000  00001351  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
 
@@ -57,102 +61,126 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 5b 00 	jmp	0xb6	; 0xb6 <_exit>
+  64:	0c 94 55 00 	jmp	0xaa	; 0xaa <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
-#include<avr/io.h>
-#include<util/delay.h>
-void main()
+#define LINE_UNDER_RIGHT 0b11111101 // Right sensor on the line
+#define CROSSROAD       0b11111111  // Both sensors on the line
+
+int main(void)
 {
-DDRD=0b00000000;           //setting
+    DDRD  = 0b00000000;             // Port D is an input port
   6c:	11 ba       	out	0x11, r1	; 17
-DDRB=0b11111111;           //part D as an input part
+
+0000006e <.Loc.3>:
+    PORTD = 0b11111111;             // Enable pull-ups on Port D
   6e:	8f ef       	ldi	r24, 0xFF	; 255
-  70:	87 bb       	out	0x17, r24	; 23
-PORTD=0b11111111;          //Setting
-  72:	82 bb       	out	0x12, r24	; 18
-int c;                     //Part B as an output part    
-while(1)                           //Pulling up all the pins of part D
-  {
-  c=PIND;
-  if (c==0b11111100)            //straight path
-  PORTB=0b00001010;            //forward
-  74:	6a e0       	ldi	r22, 0x0A	; 10
-  PORTB=0b00000110;            //right turn
-  if (c==0b11111110)            //path turns left  
-  PORTB=0b00001001;            //left turn
-  if (c==0b11111111)           //crossroad
-  {
-  PORTB=0b00010000;            //beep and go forward
-  76:	f0 e1       	ldi	r31, 0x10	; 16
-    milliseconds can be achieved.
- */
-void
-_delay_loop_2(uint16_t __count)
-{
-	__asm__ volatile (
-  78:	44 ed       	ldi	r20, 0xD4	; 212
-  7a:	50 e3       	ldi	r21, 0x30	; 48
-  {
-  c=PIND;
-  if (c==0b11111100)            //straight path
-  PORTB=0b00001010;            //forward
-  if (c==0b11111110)              //path turns right 
-  PORTB=0b00000110;            //right turn
-  7c:	20 e5       	ldi	r18, 0x50	; 80
-  7e:	33 ec       	ldi	r19, 0xC3	; 195
-  80:	e6 e0       	ldi	r30, 0x06	; 6
-  if (c==0b11111110)            //path turns left  
-  PORTB=0b00001001;            //left turn
-  82:	79 e0       	ldi	r23, 0x09	; 9
-DDRB=0b11111111;           //part D as an input part
-PORTD=0b11111111;          //Setting
-int c;                     //Part B as an output part    
-while(1)                           //Pulling up all the pins of part D
-  {
-  c=PIND;
-  84:	80 b3       	in	r24, 0x10	; 16
-  86:	90 e0       	ldi	r25, 0x00	; 0
-  if (c==0b11111100)            //straight path
-  88:	8c 3f       	cpi	r24, 0xFC	; 252
-  8a:	91 05       	cpc	r25, r1
-  8c:	11 f4       	brne	.+4      	; 0x92 <main+0x26>
-  PORTB=0b00001010;            //forward
-  8e:	68 bb       	out	0x18, r22	; 24
-  90:	f9 cf       	rjmp	.-14     	; 0x84 <main+0x18>
-  if (c==0b11111110)              //path turns right 
-  92:	8e 3f       	cpi	r24, 0xFE	; 254
-  94:	91 05       	cpc	r25, r1
-  96:	19 f4       	brne	.+6      	; 0x9e <main+0x32>
-  PORTB=0b00000110;            //right turn
-  98:	e8 bb       	out	0x18, r30	; 24
-  if (c==0b11111110)            //path turns left  
-  PORTB=0b00001001;            //left turn
-  9a:	78 bb       	out	0x18, r23	; 24
-  9c:	f3 cf       	rjmp	.-26     	; 0x84 <main+0x18>
-  if (c==0b11111111)           //crossroad
-  9e:	8f 3f       	cpi	r24, 0xFF	; 255
-  a0:	91 05       	cpc	r25, r1
-  a2:	81 f7       	brne	.-32     	; 0x84 <main+0x18>
-  {
-  PORTB=0b00010000;            //beep and go forward
-  a4:	f8 bb       	out	0x18, r31	; 24
-  a6:	ca 01       	movw	r24, r20
-  a8:	01 97       	sbiw	r24, 0x01	; 1
-  aa:	f1 f7       	brne	.-4      	; 0xa8 <main+0x3c>
-  _delay_ms(50);
-  PORTB=0b00001010;
-  ac:	68 bb       	out	0x18, r22	; 24
-  ae:	c9 01       	movw	r24, r18
-  b0:	01 97       	sbiw	r24, 0x01	; 1
-  b2:	f1 f7       	brne	.-4      	; 0xb0 <main+0x44>
-  b4:	e7 cf       	rjmp	.-50     	; 0x84 <main+0x18>
+  70:	82 bb       	out	0x12, r24	; 18
 
-000000b6 <_exit>:
-  b6:	f8 94       	cli
+00000072 <.Loc.5>:
+    DDRB  = 0b11111111;             // Port B is an output port
+  72:	87 bb       	out	0x17, r24	; 23
 
-000000b8 <__stop_program>:
-  b8:	ff cf       	rjmp	.-2      	; 0xb8 <__stop_program>
+00000074 <.Loc.7>:
+            case LINE_CENTRED:
+                PORTB = MOTOR_FORWARD;
+                break;
+
+            case LINE_UNDER_LEFT:
+                PORTB = MOTOR_LEFT;
+  74:	26 e0       	ldi	r18, 0x06	; 6
+
+00000076 <.Loc.8>:
+            case LINE_UNDER_RIGHT:
+                PORTB = MOTOR_RIGHT;
+                break;
+
+            case CROSSROAD:
+                PORTB = MOTOR_FORWARD | BUZZER;     // Beep and cross over
+  76:	9a e1       	ldi	r25, 0x1A	; 26
+
+00000078 <.Loc.9>:
+                PORTB = MOTOR_FORWARD;
+  78:	3a e0       	ldi	r19, 0x0A	; 10
+
+0000007a <.Loc.10>:
+                PORTB = MOTOR_RIGHT;
+  7a:	49 e0       	ldi	r20, 0x09	; 9
+
+0000007c <.L7>:
+        switch (PIND)
+  7c:	80 b3       	in	r24, 0x10	; 16
+
+0000007e <.Loc.14>:
+  7e:	8e 3f       	cpi	r24, 0xFE	; 254
+  80:	51 f0       	breq	.+20     	; 0x96 <.L3>
+  82:	8f 3f       	cpi	r24, 0xFF	; 255
+  84:	51 f0       	breq	.+20     	; 0x9a <.L4>
+  86:	8c 3f       	cpi	r24, 0xFC	; 252
+  88:	21 f0       	breq	.+8      	; 0x92 <.L5>
+  8a:	8d 3f       	cpi	r24, 0xFD	; 253
+  8c:	b9 f7       	brne	.-18     	; 0x7c <.L7>
+
+0000008e <.Loc.15>:
+                PORTB = MOTOR_RIGHT;
+  8e:	48 bb       	out	0x18, r20	; 24
+
+00000090 <.Loc.17>:
+                break;
+  90:	f5 cf       	rjmp	.-22     	; 0x7c <.L7>
+
+00000092 <.L5>:
+                PORTB = MOTOR_FORWARD;
+  92:	38 bb       	out	0x18, r19	; 24
+
+00000094 <.Loc.20>:
+                break;
+  94:	f3 cf       	rjmp	.-26     	; 0x7c <.L7>
+
+00000096 <.L3>:
+                PORTB = MOTOR_LEFT;
+  96:	28 bb       	out	0x18, r18	; 24
+
+00000098 <.Loc.23>:
+                break;
+  98:	f1 cf       	rjmp	.-30     	; 0x7c <.L7>
+
+0000009a <.L4>:
+                PORTB = MOTOR_FORWARD | BUZZER;     // Beep and cross over
+  9a:	98 bb       	out	0x18, r25	; 24
+
+0000009c <.LBB4>:
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(__builtin_ceil(__builtin_fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  9c:	ef e4       	ldi	r30, 0x4F	; 79
+  9e:	f3 ec       	ldi	r31, 0xC3	; 195
+
+000000a0 <.L1^B1>:
+  a0:	31 97       	sbiw	r30, 0x01	; 1
+  a2:	f1 f7       	brne	.-4      	; 0xa0 <.L1^B1>
+  a4:	00 c0       	rjmp	.+0      	; 0xa6 <L0^A>
+
+000000a6 <L0^A>:
+  a6:	00 00       	nop
+
+000000a8 <.LBB7>:
+	}
+	else
+		__ticks = (uint16_t)__tmp;
+	_delay_loop_2(__ticks);
+#endif
+}
+  a8:	e9 cf       	rjmp	.-46     	; 0x7c <.L7>
+
+000000aa <_exit>:
+  aa:	f8 94       	cli
+
+000000ac <__stop_program>:
+  ac:	ff cf       	rjmp	.-2      	; 0xac <__stop_program>

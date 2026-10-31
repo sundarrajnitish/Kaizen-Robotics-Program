@@ -3,26 +3,28 @@ OARLFR.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000c8  00000000  00000000  00000054  2**1
+  0 .text         000000b0  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  0000011c  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  0000013c  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   00000102  00000000  00000000  00000157  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000a6  00000000  00000000  00000259  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   000001a1  00000000  00000000  000002ff  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  000004a0  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000e2  00000000  00000000  000004c0  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    00000050  00000000  00000000  000005a2  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  9 .debug_ranges 00000048  00000000  00000000  000005f2  2**0
-                  CONTENTS, READONLY, DEBUGGING
+  1 .data         00000000  00800060  000000b0  00000124  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000012  00000000  00000000  00000124  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000138  2**2
+                  CONTENTS, READONLY, OCTETS
+  4 .debug_aranges 00000020  00000000  00000000  00000174  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  5 .debug_info   000005b7  00000000  00000000  00000194  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  6 .debug_abbrev 0000053e  00000000  00000000  0000074b  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  7 .debug_line   0000017d  00000000  00000000  00000c89  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  8 .debug_frame  00000024  00000000  00000000  00000e08  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_str    000002e5  00000000  00000000  00000e2c  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_ranges 00000010  00000000  00000000  00001111  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
 
@@ -57,125 +59,119 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 62 00 	jmp	0xc4	; 0xc4 <_exit>
+  64:	0c 94 56 00 	jmp	0xac	; 0xac <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
-#include<avr/io.h>
-#include<util/delay.h>
-void main()
+#define BLOCKED_UNDER_RIGHT     0b11111100
+#define BLOCKED_JUNCTION        0b11111101
+
+int main(void)
 {
-DDRD=0b00000000; //Setting part D as an input part
+    DDRD  = 0b00000000;             // Port D is an input port
   6c:	11 ba       	out	0x11, r1	; 17
-DDRB=0b11111111; //Seting Part B as an Output part
+
+0000006e <.Loc.3>:
+    PORTD = 0b11111111;             // Enable pull-ups on Port D
   6e:	8f ef       	ldi	r24, 0xFF	; 255
-  70:	87 bb       	out	0x17, r24	; 23
-PORTD=0b11111111; //Pulling up all the pins of part B
-  72:	82 bb       	out	0x12, r24	; 18
-int c;
-while(1)
-{
-c=PIND;
-if(c==0b11111010) //No obstacle
-PORTB=0b00001010; //Forward
-  74:	4a e0       	ldi	r20, 0x0A	; 10
+  70:	82 bb       	out	0x12, r24	; 18
 
-if(c==0b11111011) 
-PORTB=0b00001001;
+00000072 <.Loc.5>:
+    DDRB  = 0b11111111;             // Port B is an output port
+  72:	87 bb       	out	0x17, r24	; 23
 
-if(c==0b11111110)
- PORTB=0b00000110;
-  76:	76 e0       	ldi	r23, 0x06	; 6
-c=PIND;
-if(c==0b11111010) //No obstacle
-PORTB=0b00001010; //Forward
+00000074 <.Loc.7>:
+            case LINE_UNDER_RIGHT:
+                PORTB = MOTOR_RIGHT;
+                break;
 
-if(c==0b11111011) 
-PORTB=0b00001001;
-  78:	69 e0       	ldi	r22, 0x09	; 9
+            case JUNCTION:
+                PORTB = MOTOR_FORWARD | BUZZER;     // Beep and cross over
+  74:	9a e1       	ldi	r25, 0x1A	; 26
 
+00000076 <.Loc.8>:
+                PORTB = MOTOR_RIGHT;
+  76:	29 e0       	ldi	r18, 0x09	; 9
 
+00000078 <.Loc.9>:
+                PORTB = MOTOR_FORWARD;
+  78:	3a e0       	ldi	r19, 0x0A	; 10
 
-if(c==0b11111101) //Obstacle at the center
-{
-PORTB=0b00010000; //Stop
-  7a:	50 e1       	ldi	r21, 0x10	; 16
-    milliseconds can be achieved.
- */
-void
-_delay_loop_2(uint16_t __count)
-{
-	__asm__ volatile (
-  7c:	24 ed       	ldi	r18, 0xD4	; 212
-  7e:	30 e3       	ldi	r19, 0x30	; 48
-DDRB=0b11111111; //Seting Part B as an Output part
-PORTD=0b11111111; //Pulling up all the pins of part B
-int c;
-while(1)
-{
-c=PIND;
-  80:	80 b3       	in	r24, 0x10	; 16
-  82:	90 e0       	ldi	r25, 0x00	; 0
-if(c==0b11111010) //No obstacle
-  84:	8a 3f       	cpi	r24, 0xFA	; 250
-  86:	91 05       	cpc	r25, r1
-  88:	11 f4       	brne	.+4      	; 0x8e <main+0x22>
-PORTB=0b00001010; //Forward
-  8a:	48 bb       	out	0x18, r20	; 24
-  8c:	0d c0       	rjmp	.+26     	; 0xa8 <main+0x3c>
+0000007a <.Loc.10>:
+                PORTB = MOTOR_LEFT;
+  7a:	46 e0       	ldi	r20, 0x06	; 6
 
-if(c==0b11111011) 
-  8e:	8b 3f       	cpi	r24, 0xFB	; 251
-  90:	91 05       	cpc	r25, r1
-  92:	11 f4       	brne	.+4      	; 0x98 <main+0x2c>
-PORTB=0b00001001;
-  94:	68 bb       	out	0x18, r22	; 24
-  96:	0d c0       	rjmp	.+26     	; 0xb2 <main+0x46>
+0000007c <.L7>:
+        switch (PIND)
+  7c:	80 b3       	in	r24, 0x10	; 16
 
-if(c==0b11111110)
+0000007e <.Loc.14>:
+  7e:	8e 3f       	cpi	r24, 0xFE	; 254
+  80:	58 f4       	brcc	.+22     	; 0x98 <.L3>
+  82:	8c 3f       	cpi	r24, 0xFC	; 252
+  84:	38 f4       	brcc	.+14     	; 0x94 <.L4>
+  86:	8a 3f       	cpi	r24, 0xFA	; 250
+  88:	59 f0       	breq	.+22     	; 0xa0 <.L5>
+  8a:	8b 3f       	cpi	r24, 0xFB	; 251
+  8c:	59 f0       	breq	.+22     	; 0xa4 <.L6>
+  8e:	88 5f       	subi	r24, 0xF8	; 248
+  90:	82 30       	cpi	r24, 0x02	; 2
+  92:	a0 f7       	brcc	.-24     	; 0x7c <.L7>
+
+00000094 <.L4>:
+
+            case BLOCKED_CENTRED:
+            case BLOCKED_UNDER_LEFT:
+            case BLOCKED_UNDER_RIGHT:
+            case BLOCKED_JUNCTION:
+                PORTB = MOTOR_STOP;                 // Wait for a clear path
+  94:	18 ba       	out	0x18, r1	; 24
+
+00000096 <.Loc.17>:
+                break;
+  96:	f2 cf       	rjmp	.-28     	; 0x7c <.L7>
+
+00000098 <.L3>:
+        switch (PIND)
   98:	8e 3f       	cpi	r24, 0xFE	; 254
-  9a:	91 05       	cpc	r25, r1
-  9c:	11 f4       	brne	.+4      	; 0xa2 <main+0x36>
- PORTB=0b00000110;
-  9e:	78 bb       	out	0x18, r23	; 24
-  a0:	ef cf       	rjmp	.-34     	; 0x80 <main+0x14>
+  9a:	31 f4       	brne	.+12     	; 0xa8 <.L12>
 
+0000009c <.Loc.19>:
+                PORTB = MOTOR_RIGHT;
+  9c:	28 bb       	out	0x18, r18	; 24
 
-if(c==0b11111000) 
-  a2:	88 3f       	cpi	r24, 0xF8	; 248
-  a4:	91 05       	cpc	r25, r1
-  a6:	19 f0       	breq	.+6      	; 0xae <main+0x42>
-PORTB=0b00000000;
+0000009e <.Loc.21>:
+                break;
+  9e:	ee cf       	rjmp	.-36     	; 0x7c <.L7>
 
-if(c==0b11111001) 
-  a8:	89 3f       	cpi	r24, 0xF9	; 249
-  aa:	91 05       	cpc	r25, r1
-  ac:	11 f4       	brne	.+4      	; 0xb2 <main+0x46>
-PORTB=0b00000000;
-  ae:	18 ba       	out	0x18, r1	; 24
-  b0:	e7 cf       	rjmp	.-50     	; 0x80 <main+0x14>
+000000a0 <.L5>:
+                PORTB = MOTOR_FORWARD;
+  a0:	38 bb       	out	0x18, r19	; 24
 
+000000a2 <.Loc.24>:
+                break;
+  a2:	ec cf       	rjmp	.-40     	; 0x7c <.L7>
 
+000000a4 <.L6>:
+                PORTB = MOTOR_LEFT;
+  a4:	48 bb       	out	0x18, r20	; 24
 
-if(c==0b11111101) //Obstacle at the center
-  b2:	8d 3f       	cpi	r24, 0xFD	; 253
-  b4:	91 05       	cpc	r25, r1
-  b6:	21 f7       	brne	.-56     	; 0x80 <main+0x14>
-{
-PORTB=0b00010000; //Stop
-  b8:	58 bb       	out	0x18, r21	; 24
-  ba:	c9 01       	movw	r24, r18
-  bc:	01 97       	sbiw	r24, 0x01	; 1
-  be:	f1 f7       	brne	.-4      	; 0xbc <main+0x50>
-_delay_ms(50);
-PORTB=0b00001010;
-  c0:	48 bb       	out	0x18, r20	; 24
-  c2:	de cf       	rjmp	.-68     	; 0x80 <main+0x14>
+000000a6 <.Loc.27>:
+                break;
+  a6:	ea cf       	rjmp	.-44     	; 0x7c <.L7>
 
-000000c4 <_exit>:
-  c4:	f8 94       	cli
+000000a8 <.L12>:
+                PORTB = MOTOR_FORWARD | BUZZER;     // Beep and cross over
+  a8:	98 bb       	out	0x18, r25	; 24
 
-000000c6 <__stop_program>:
-  c6:	ff cf       	rjmp	.-2      	; 0xc6 <__stop_program>
+000000aa <.Loc.30>:
+                break;
+  aa:	e8 cf       	rjmp	.-48     	; 0x7c <.L7>
+
+000000ac <_exit>:
+  ac:	f8 94       	cli
+
+000000ae <__stop_program>:
+  ae:	ff cf       	rjmp	.-2      	; 0xae <__stop_program>

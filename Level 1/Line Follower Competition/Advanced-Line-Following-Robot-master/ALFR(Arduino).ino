@@ -1,132 +1,121 @@
-int rm1 = 0;
-int rm2 = 1;
-int lm1 = 2;
-int lm2 = 3;
-int lmen = 4;
-int rmen = 5;
+/*
+ * Project : Advanced Line Following Robot (Arduino port)
+ * Level   : Kaizen Robotics Program - Level 1
+ * Board   : ATmega16 (Arduino core)
+ *
+ * Arduino version of ALFR.c. Follows a black line with two IR sensors,
+ * beeps on junctions, stops and sounds the buzzer when an obstacle is in
+ * front, and drives slower while a cave wall is detected.
+ *
+ *   Line sensors      : 0 over white, 1 over the black line
+ *   Proximity sensors : 0 when an object is detected
+ *
+ * Wiring:
+ *   D0, D1   -> right motor driver inputs
+ *   D2, D3   -> left motor driver inputs
+ *   D4, D5   -> left / right motor enable pins (PWM)
+ *   D6       -> buzzer
+ *   D15      <- left line sensor
+ *   D16      <- right line sensor
+ *   D17      <- front obstacle sensor
+ *   D14      <- cave wall sensor
+ */
 
-int buz = 6;
-int lir = 15;
-int rir = 16;
-int oir = 17;
-int cir = 14;
+const int RM1  = 0;
+const int RM2  = 1;
+const int LM1  = 2;
+const int LM2  = 3;
+const int LMEN = 4;
+const int RMEN = 5;
 
-int Speed;
+const int BUZZER         = 6;
+const int LEFT_SENSOR    = 15;
+const int RIGHT_SENSOR   = 16;
+const int OBSTACLE_SENSOR = 17;
+const int CAVE_SENSOR    = 14;
 
+const int FULL_SPEED = 255;
+const int CAVE_SPEED = 200;
 
-void setup() 
+int speed = FULL_SPEED;
+
+void drive(int lm1, int lm2, int rm1, int rm2)
 {
-  pinMode(lm1, OUTPUT);
-  pinMode(lm2, OUTPUT);
-  pinMode(rm1, OUTPUT);
-  pinMode(rm2, OUTPUT);
-  pinMode(lmen, OUTPUT);
-  pinMode(rmen, OUTPUT);
-  
-  pinMode(buz,OUTPUT);
-  
-  pinMode(lir,INPUT);
-  pinMode(rir,INPUT);
-  pinMode(oir,INPUT);
-  pinMode(cir,INPUT);
+    digitalWrite(LM1, lm1);
+    digitalWrite(LM2, lm2);
+    digitalWrite(RM1, rm1);
+    digitalWrite(RM2, rm2);
+    analogWrite(LMEN, speed);
+    analogWrite(RMEN, speed);
 }
 
-void loop() 
+void forward()     { drive(1, 0, 1, 0); }
+void turn_right()  { drive(1, 0, 0, 1); }
+void turn_left()   { drive(0, 1, 1, 0); }
+void stop_motors() { drive(0, 0, 0, 0); }
+
+void buzzer(bool on)
 {
-  set_speed();
-  line_follow();
+    digitalWrite(BUZZER, on);
 }
 
 void set_speed()
 {
-  if(digitalRead(cir) == 1)
-  {
-    Speed=255;
-  }
-  else
-  {
-    Speed=200;
-  }
+    speed = digitalRead(CAVE_SENSOR) == 1 ? FULL_SPEED : CAVE_SPEED;
 }
 
 void line_follow()
 {
-  if(digitalRead(oir) == 1)
-  {
-    if((digitalRead(lir)==0) && (digitalRead(rir)==0))
+    if (digitalRead(OBSTACLE_SENSOR) == 0)      // Obstacle in front
     {
-      forward();
-      sbuz();
+        stop_motors();
+        buzzer(true);
+        return;
     }
-    else if((digitalRead(lir)==1) && (digitalRead(rir)==0))
+
+    int left  = digitalRead(LEFT_SENSOR);
+    int right = digitalRead(RIGHT_SENSOR);
+
+    if (left == 0 && right == 0)                // Line centred
     {
-      left();
-      sbuz();
+        forward();
+        buzzer(false);
     }
-    else if((digitalRead(lir)==0) && (digitalRead(rir)==1))
+    else if (left == 1 && right == 0)           // Line under left sensor
     {
-      right();
-      sbuz();
+        turn_left();
+        buzzer(false);
     }
-    else if((digitalRead(lir)==1) && (digitalRead(rir)==1))
+    else if (left == 0 && right == 1)           // Line under right sensor
     {
-      forward();
-      bbuz();
+        turn_right();
+        buzzer(false);
     }
-  }
-  else
-  {
-    Stop();
-    bbuz();
-  }
+    else                                        // Junction: beep and cross
+    {
+        forward();
+        buzzer(true);
+    }
 }
 
-void forward()
+void setup()
 {
-  digitalWrite(lm1, 1);
-  digitalWrite(lm2, 0);
-  digitalWrite(rm1, 1);
-  digitalWrite(rm2, 0);
-  analogWrite(lmen, Speed);
-  analogWrite(rmen, Speed);
+    pinMode(LM1, OUTPUT);
+    pinMode(LM2, OUTPUT);
+    pinMode(RM1, OUTPUT);
+    pinMode(RM2, OUTPUT);
+    pinMode(LMEN, OUTPUT);
+    pinMode(RMEN, OUTPUT);
+    pinMode(BUZZER, OUTPUT);
+
+    pinMode(LEFT_SENSOR, INPUT);
+    pinMode(RIGHT_SENSOR, INPUT);
+    pinMode(OBSTACLE_SENSOR, INPUT);
+    pinMode(CAVE_SENSOR, INPUT);
 }
 
-void right()
+void loop()
 {
-  digitalWrite(lm1, 1);
-  digitalWrite(lm2, 0);
-  digitalWrite(rm1, 0);
-  digitalWrite(rm2, 1);
-  analogWrite(lmen, Speed);
-  analogWrite(rmen, Speed);  
-}
-
-void left()
-{
-  digitalWrite(lm1, 0);
-  digitalWrite(lm2, 1);
-  digitalWrite(rm1, 1);
-  digitalWrite(rm2, 0);
-  analogWrite(lmen, Speed);
-  analogWrite(rmen, Speed);    
-}
-
-void Stop()
-{
-  digitalWrite(lm1, 0);
-  digitalWrite(lm2, 0);
-  digitalWrite(rm1, 0);
-  digitalWrite(rm2, 0);
-  analogWrite(lmen, Speed);
-  analogWrite(rmen, Speed);    
-}
-
-void bbuz()
-{
-  digitalWrite(buz, 1);
-}
-
-void sbuz()
-{
-  digitalWrite(buz, 0);
+    set_speed();
+    line_follow();
 }

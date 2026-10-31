@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maze Solver - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+    .sensors5 { display: grid; grid-template-columns: 70px repeat(5, 34px); gap: 4px; align-items: center; font-size: 13px; margin: 3px 0; }
+    .sensors5 .s { text-align: center; border-radius: 6px; border: 1px solid var(--line); font: 700 15px/26px ui-monospace, monospace; }
+    .sensors5 .s.black { background: #111; color: #fff; border-color: #111; }
+    .sensors5 .h { text-align: center; font-size: 11px; color: var(--muted); }
+    .phase { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .phase span { font-size: 12px; padding: 3px 9px; border-radius: 99px; background: var(--code); color: var(--muted); }
+    .phase span.now { background: var(--accent); color: var(--accent-ink); }
+    #event { font-weight: 600; min-height: 1.5em; }
+    #steps { font-family: ui-monospace, monospace; font-size: 13px; max-height: 150px; overflow: auto; }
+    #steps div.cur { background: var(--hl); color: var(--hl-ink); }
+</style>
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Maze Solving Robot</h1>
+    <span class="tag">Level 2 &middot; Arduino &middot; 5 line sensors &middot; left hand rule</span>
+</header>
+<p class="lede">
+    The robot explores a black-line maze by always preferring the leftmost way. It notes every decision at a
+    junction (<b>L</b>, <b>S</b>, <b>R</b>) and every dead-end U-turn (<b>U</b>). The shortest-path version then removes each
+    detour from that list and drives the maze again without a single wrong turn. The return version drives back to the start.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar">
+                <label class="speed">Sketch <select id="mode">
+                    <option value="explore">maze_solver.ino &ndash; explore only</option>
+                    <option value="replay" selected>ShortestPathAlgorithm.ino &ndash; explore, then shortest run</option>
+                    <option value="return">Maze_bot_return_final.ino &ndash; explore, then drive back</option>
+                </select></label>
+                <button class="btn primary" id="run">Run</button>
+                <button class="btn" id="step">Step</button>
+                <button class="btn" id="reset">Reset</button>
+                <button class="btn" id="newMaze">New maze</button>
+                <label class="speed">Speed <select id="speed"><option>0.5</option><option selected>1</option><option>2</option><option>4</option></select>&times;</label>
+            </div>
+            <canvas id="world" width="1350" height="900"></canvas>
+            <p class="hint">Green circle: start (a dead end). Black square: end box. The dashed trail is where the robot has driven.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <div class="phase" id="phase"></div>
+            <div id="event"></div>
+            <h3>Sensors at this node (0 = black line)</h3>
+            <div class="sensors5"><span></span><span class="h">L</span><span class="h">C1</span><span class="h">C2</span><span class="h">C3</span><span class="h">R</span></div>
+            <div class="sensors5" id="before"></div>
+            <div class="sensors5" id="after"></div>
+            <h3>LCD</h3>
+            <div id="lcd"></div>
+        </div>
+        <div class="panel">
+            <h2 id="pathTitle">Recorded path</h2>
+            <div class="chips" id="path"></div>
+            <div id="simplify" hidden>
+                <h3>Simplification steps</h3>
+                <div id="steps"></div>
+            </div>
+            <p class="hint" id="pathNote"></p>
+        </div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>What the sensors see</h2>
+    <p>Five sensors in a row read 0 over the black line. At every node the sketch first reads the pattern, then
+        <code>inch()</code>es forward 0.3&ndash;0.5 s and reads again to see whether the line continues straight ahead:</p>
+    <pre>pattern  after inch   meaning              left hand rule   recorded
+11011    -            straight line        forward          -
+11111    -            dead end             U-turn           U
+11000    11111        right turn only      right            -
+11000    11011        straight or right    straight         S
+00011    11111        left turn only       left             -
+00011    11011        straight or left     left             L
+00000    11111        T junction           left             L
+00000    11011        4-way crossing       left             L
+00000    00000        end box              stop             E</pre>
+    <h2>Shortest path: removing detours</h2>
+    <p>Every <b>U</b> marks a dead end. The three letters around it (turn in, U-turn, turn out) all happen at one
+        junction, so they can be replaced by the single turn the robot should have made there. Treating turns as angles
+        (S = 0&deg;, R = 90&deg;, U = 180&deg;, L = 270&deg;) the replacement is simply their sum:</p>
+    <pre>L U L  -> 270+180+270 = 720 = 0   -> S
+L U S  -> 270+180+0   = 450 = 90  -> R
+S U L  ->   0+180+270 = 450 = 90  -> R
+L U R  -> 270+180+90  = 540 = 180 -> U
+S U S  ->   0+180+0   = 180       -> U
+R U L  ->  90+180+270 = 540 = 180 -> U</pre>
+    <p><code>simplify_path()</code> applies this while it reads the path, so nested detours collapse too. On the
+        shortest run the robot follows the line as usual; at each junction that offers a choice it takes the next
+        letter. For the return trip <code>reverse_path()</code> reverses the list and swaps L and R, because a left turn on
+        the way in is a right turn on the way back.</p>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/maze.js"></script>
+<script>
+(function () {
+    const K = Kaizen, M = KaizenMaze;
+    const W = 7, H = 5, CELL = 120, OX = 90, OY = 60;
+    const canvas = document.getElementById('world');
+    const ctx = canvas.getContext('2d');
+    const WORLD_W = 900, WORLD_H = 600;
+    const lcd = K.lcd(document.getElementById('lcd'));
+    const modeSel = document.getElementById('mode');
+    const runBtn = document.getElementById('run');
+    const speedSel = document.getElementById('speed');
+    const PHASES = { explore: ['Explore'], replay: ['Explore', 'Simplify', 'Shortest run'], return: ['Explore', 'Simplify', 'Drive back'] };
+
+    const robot = new K.Robot({
+        sensors: [-22, -11, 0, 11, 22].map((dy, i) => ({ name: 's' + i, type: 'line', dx: 30, dy })),
+        style: { body: '#1f7a4d', trail: 'rgba(37,99,235,0.45)' },
+    });
+
+    let seed = 8, maze, state;
+    const node = (x, y) => [OX + x * CELL, OY + y * CELL];
+    const dirAngle = d => [0, Math.PI / 2, Math.PI, -Math.PI / 2][d];
+
+    function reset() {
+        maze = M.generate(W, H, seed);
+        const [sx, sy] = node(maze.start.x, maze.start.y);
+        robot.reset({ x: sx, y: sy, heading: dirAngle(maze.start.dir) });
+        robot.trail = [];
+        state = {
+            phase: 'explore', gen: M.run(maze, 'explore'), anim: null, running: false,
+            path: [], plan: [], planIndex: -1, steps: [], stepIndex: -1, arrivalDir: 0,
+        };
+        lcd.show('MSR with LHR');
+        setEvent(null);
+        runBtn.textContent = 'Run';
+        render();
+        renderPanel();
+    }
+
+    function setEvent(ev) {
+        const box = document.getElementById('event');
+        const rows = [document.getElementById('before'), document.getElementById('after')];
+        rows.forEach(r => (r.innerHTML = ''));
+        robot.readings = {};
+        if (!ev) { box.textContent = 'Press Run or Step to start.'; return; }
+        let text = M.KIND_LABEL[ev.kind] || ({ start: 'Start', uturnAtEnd: 'Turn around in the end box', home: 'Back at the start: stop' })[ev.kind] || ev.kind;
+        if (ev.recorded) text += ` → record '${ev.recorded}'`;
+        if (ev.decision) text += ` → take '${ev.decision}' from the path`;
+        box.textContent = text;
+        const draw = (row, label, pat) => {
+            if (!pat) return;
+            row.append(K.el('span', '', label));
+            for (const b of pat) row.append(K.el('span', 's' + (b === '0' ? ' black' : ''), b));
+        };
+        draw(rows[0], 'reading', ev.before);
+        draw(rows[1], 'after inch', ev.after);
+        if (ev.before) [...ev.before].forEach((b, i) => (robot.readings['s' + i] = b === '0' ? 1 : 0));
+        if (ev.lcd) lcd.show(ev.lcd[0], ev.lcd[1] || '');
+    }
+
+    function renderPanel() {
+        const phases = PHASES[modeSel.value];
+        const cur = { explore: 0, simplify: 1, replay: 2, return: 2, done: phases.length }[state.phase];
+        document.getElementById('phase').innerHTML = phases.map((p, i) => `<span class="${i === cur ? 'now' : ''}">${i + 1}. ${p}</span>`).join('');
+        const pathBox = document.getElementById('path');
+        const showPlan = state.phase === 'replay' || state.phase === 'return' || (state.phase === 'done' && state.plan.length);
+        const list = showPlan ? state.plan : state.path;
+        document.getElementById('pathTitle').textContent = showPlan
+            ? (modeSel.value === 'return' ? 'Return path (reversed, L↔R swapped)' : 'Shortest path')
+            : 'Recorded path';
+        pathBox.innerHTML = list.length ? list.map((c, i) => `<span class="chip${showPlan && i < state.planIndex ? ' done' : ''}${showPlan && i === state.planIndex ? ' cur' : ''}">${c}</span>`).join('') : '<span class="hint">(empty)</span>';
+        const simp = document.getElementById('simplify');
+        simp.hidden = !state.steps.length;
+        document.getElementById('steps').innerHTML = state.steps.map((s, i) =>
+            `<div class="${i === state.stepIndex ? 'cur' : ''}">${i < state.stepIndex + 1 || state.phase !== 'simplify' ? `${s.before}: ${s.from} → ${s.to}` : '&hellip;'}</div>`).join('');
+        const n = state.path.filter(c => c !== 'E').length;
+        document.getElementById('pathNote').textContent = n > 29 ? 'Warning: longer than the sketch’s 30-character path buffer.' :
+            state.phase === 'done' && modeSel.value !== 'explore'
+                ? `Explored with ${n} recorded moves; the shortest route needs ${state.plan.length} junction decisions (${maze.shortest} nodes).`
+                : '';
+    }
+
+    // ---------------------------------------------------------- animation
+
+    function beginEvent(ev) {
+        setEvent(ev);
+        const [x, y] = node(ev.x, ev.y);
+        robot.x = x; robot.y = y;
+        const turn = ev.turn || (ev.kind === 'uturnAtEnd' ? 'U' : 'S');
+        const delta = { L: -Math.PI / 2, R: Math.PI / 2, U: -Math.PI, S: 0 }[turn] || 0;
+        state.anim = { ev, t: 0, h0: robot.heading, h1: robot.heading + delta, from: [x, y],
+                       to: ev.done ? null : node(ev.x + M.DX[ev.newDir], ev.y + M.DY[ev.newDir]),
+                       pause: ev.before ? 0.45 : 0.1, turnT: delta ? 0.45 : 0, moveT: 0.55 };
+        if (ev.recorded) state.path.push(ev.recorded);
+        if (ev.kind === 'end' && state.phase === 'explore') state.path.push('E');
+        if (ev.decision) state.planIndex++;
+        renderPanel();
+    }
+
+    function finishEvent() {
+        const ev = state.anim.ev;
+        state.anim = null;
+        if (!ev.done) return;
+        if (state.phase === 'explore') {
+            state.arrivalDir = ev.dir;
+            if (modeSel.value === 'explore') return finish();
+            const s = M.simplify(state.path);
+            state.steps = s.steps;
+            state.plan = modeSel.value === 'return' ? M.reverse(s.path) : s.path;
+            state.simplified = s.path;
+            state.phase = 'simplify';
+            state.stepIndex = -1;
+            state.simplifyT = 0;
+            lcd.show('ENTERED', 'REPLACEMENT');
+        } else {
+            finish();
+        }
+        renderPanel();
+    }
+
+    function startRun() {
+        state.phase = modeSel.value === 'return' ? 'return' : 'replay';
+        state.planIndex = -1;
+        robot.trail = [];
+        if (state.phase === 'replay') {
+            const [sx, sy] = node(maze.start.x, maze.start.y);
+            Object.assign(robot, { x: sx, y: sy, heading: dirAngle(maze.start.dir) });
+            lcd.show('FINAL=', state.plan.join(''));
+        }
+        state.gen = M.run(maze, state.phase, { path: state.plan, arrivalDir: state.arrivalDir });
+        renderPanel();
+    }
+
+    function finish() {
+        state.phase = 'done';
+        state.running = false;
+        runBtn.textContent = 'Run';
+        renderPanel();
+    }
+
+    // Advances the animation by dt seconds; returns false when idle
+    function advance(dt) {
+        if (state.phase === 'done') return false;
+        if (state.phase === 'simplify') {
+            state.simplifyT += dt;
+            if (state.simplifyT < 0.9) return true;
+            state.simplifyT = 0;
+            if (state.stepIndex < state.steps.length - 1) {
+                state.stepIndex++;
+                const s = state.steps[state.stepIndex];
+                lcd.show(`${s.from} -> ${s.to}`, s.before.slice(0, 16));
+            } else {
+                lcd.show('FINAL=', state.plan.join('').slice(0, 16));
+                startRun();
+            }
+            renderPanel();
+            return true;
+        }
+        if (!state.anim) {
+            const r = state.gen.next();
+            if (r.done) { finish(); return false; }
+            beginEvent(r.value);
+            return true;
+        }
+        const a = state.anim;
+        a.t += dt;
+        let t = a.t;
+        if (t < a.pause) return true;
+        t -= a.pause;
+        if (t < a.turnT) {
+            robot.heading = a.h0 + (a.h1 - a.h0) * (t / a.turnT);
+            return true;
+        }
+        robot.heading = a.h1;
+        t -= a.turnT;
+        if (a.to && t < a.moveT) {
+            const k = t / a.moveT;
+            robot.x = a.from[0] + (a.to[0] - a.from[0]) * k;
+            robot.y = a.from[1] + (a.to[1] - a.from[1]) * k;
+            pushTrail();
+            return true;
+        }
+        if (a.to) { robot.x = a.to[0]; robot.y = a.to[1]; pushTrail(); }
+        finishEvent();
+        return true;
+    }
+
+    function pushTrail() {
+        const last = robot.trail[robot.trail.length - 1];
+        if (!last || Math.hypot(last[0] - robot.x, last[1] - robot.y) > 4) robot.trail.push([robot.x, robot.y]);
+    }
+
+    // ------------------------------------------------------------ drawing
+
+    function render() {
+        const scale = canvas.width / WORLD_W;
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        ctx.fillStyle = '#fbfbf8';
+        ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 14;
+        ctx.lineCap = 'square';
+        for (let y = 0; y < H; y++) {
+            for (let x = 0; x < W; x++) {
+                const o = maze.open[y][x];
+                const [px, py] = node(x, y);
+                if (o[0]) { ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + CELL, py); ctx.stroke(); }
+                if (o[1]) { ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + CELL); ctx.stroke(); }
+            }
+        }
+        const [sx, sy] = node(maze.start.x, maze.start.y);
+        ctx.fillStyle = 'rgba(22,163,74,0.25)';
+        ctx.strokeStyle = '#16a34a';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(sx, sy, 26, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        const [ex, ey] = node(maze.end.x, maze.end.y);
+        ctx.fillStyle = '#111';
+        ctx.fillRect(ex - 30, ey - 30, 60, 60);
+        ctx.font = 'bold 12px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('END', ex, ey - 36);
+        ctx.fillStyle = '#16a34a';
+        ctx.fillText('START', sx, sy - 32);
+        K.drawRobot(ctx, robot);
+    }
+
+    let last = null;
+    function frame(now) {
+        if (last === null) last = now;
+        const dt = Math.min(0.1, (now - last) / 1000) * parseFloat(speedSel.value);
+        last = now;
+        if (state.running && !advance(dt)) { state.running = false; runBtn.textContent = 'Run'; }
+        render();
+        requestAnimationFrame(frame);
+    }
+
+    runBtn.onclick = () => {
+        if (state.phase === 'done') reset();
+        state.running = !state.running;
+        runBtn.textContent = state.running ? 'Pause' : 'Run';
+    };
+    document.getElementById('step').onclick = () => {
+        state.running = false;
+        runBtn.textContent = 'Run';
+        if (state.phase === 'simplify') {           // show the next reduction
+            state.simplifyT = 1;
+            advance(0);
+            return;
+        }
+        while (state.anim) advance(10);             // finish the current move
+        advance(0);                                 // read the sensors at the next node
+    };
+    document.getElementById('reset').onclick = reset;
+    document.getElementById('newMaze').onclick = () => { seed = Math.floor(Math.random() * 1e6); reset(); };
+    modeSel.onchange = reset;
+
+    const initial = new URLSearchParams(location.search).get('mode');
+    if (PHASES[initial]) modeSel.value = initial;
+    reset();
+    requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

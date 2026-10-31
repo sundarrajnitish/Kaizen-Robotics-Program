@@ -1,426 +1,767 @@
    1               		.file	"OAR.c"
-   2               	__SREG__ = 0x3f
-   3               	__SP_H__ = 0x3e
-   4               	__SP_L__ = 0x3d
-   5               	__CCP__  = 0x34
-   6               	__tmp_reg__ = 0
-   7               	__zero_reg__ = 1
-  15               	.Ltext0:
-  16               	.global	main
-  18               	main:
-  19               	.LFB6:
-  20               	.LM1:
-  21               	/* prologue: function */
-  22               	/* frame size = 0 */
-  23               	.LM2:
-  24 0000 11BA      		out 49-32,__zero_reg__
-  25               	.LM3:
-  26 0002 8FEF      		ldi r24,lo8(-1)
-  27 0004 87BB      		out 55-32,r24
-  28               	.LM4:
-  29 0006 82BB      		out 50-32,r24
-  30               	.LM5:
-  31 0008 BAE0      		ldi r27,lo8(10)
-  32               	.LM6:
-  33 000a 65E0      		ldi r22,lo8(5)
-  34               	.LBB72:
-  35               	.LBB73:
-  36               	.LBB74:
-  37               	.LBB75:
-  38               	.LM7:
-  39 000c 49E1      		ldi r20,lo8(25)
-  40 000e 50E0      		ldi r21,hi8(25)
-  41               	.LBE75:
-  42               	.LBE74:
-  43               	.LBE73:
-  44               	.LBE72:
-  45               	.LM8:
-  46 0010 A6E0      		ldi r26,lo8(6)
-  47               	.LM9:
-  48 0012 79E0      		ldi r23,lo8(9)
-  49               	.LVL0:
-  50               	.L36:
-  51               	.LM10:
-  52 0014 80B3      		in r24,48-32
-  53               	.LVL1:
-  54 0016 90E0      		ldi r25,lo8(0)
-  55               	.LM11:
-  56 0018 8F3F      		cpi r24,255
-  57 001a 9105      		cpc r25,__zero_reg__
-  58               	.LVL2:
-  59 001c 01F4      		brne .L2
-  60               	.LM12:
-  61 001e B8BB      		out 56-32,r27
-  62 0020 00C0      		rjmp .L3
-  63               	.L2:
-  64               	.LM13:
-  65 0022 8E3F      		cpi r24,254
-  66 0024 9105      		cpc r25,__zero_reg__
-  67 0026 01F4      		brne .L4
-  68               	.LM14:
-  69 0028 A8BB      		out 56-32,r26
-  70 002a 00C0      		rjmp .L5
-  71               	.L4:
-  72               	.LM15:
-  73 002c 853F      		cpi r24,245
-  74 002e 9105      		cpc r25,__zero_reg__
-  75 0030 01F4      		brne .L6
-  76               	.LM16:
-  77 0032 68BB      		out 56-32,r22
-  78 0034 28EB      		ldi r18,lo8(3000)
-  79 0036 3BE0      		ldi r19,hi8(3000)
-  80               	.LVL3:
-  81               	.L7:
-  82               	.LBB79:
-  83               	.LBB80:
-  84               	.LBB81:
-  85               	.LBB82:
-  86               	.LM17:
-  87 0038 FA01      		movw r30,r20
-  88               	.LVL4:
-  89               	/* #APP */
-  90               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
-  91 003a 3197      		1: sbiw r30,1
-  92 003c 01F4      		brne 1b
-  93               	 ;  0 "" 2
-  94               	/* #NOAPP */
-  95               	.LBE82:
-  96               	.LBE81:
-  97               	.LM18:
-  98 003e 2150      		subi r18,lo8(-(-1))
-  99 0040 3040      		sbci r19,hi8(-(-1))
- 100               	.LM19:
- 101 0042 01F4      		brne .L7
- 102               	.LBE80:
- 103               	.LBE79:
- 104               	.LM20:
- 105 0044 78BB      		out 56-32,r23
- 106 0046 28EB      		ldi r18,lo8(3000)
- 107 0048 3BE0      		ldi r19,hi8(3000)
- 108               	.LVL5:
- 109               	.L8:
- 110               	.LBB83:
- 111               	.LBB84:
- 112               	.LBB85:
- 113               	.LBB86:
- 114               	.LM21:
- 115 004a FA01      		movw r30,r20
- 116               	.LVL6:
- 117               	/* #APP */
- 118               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 119 004c 3197      		1: sbiw r30,1
- 120 004e 01F4      		brne 1b
- 121               	 ;  0 "" 2
- 122               	/* #NOAPP */
- 123               	.LBE86:
- 124               	.LBE85:
- 125               	.LM22:
- 126 0050 2150      		subi r18,lo8(-(-1))
- 127 0052 3040      		sbci r19,hi8(-(-1))
- 128               	.LM23:
- 129 0054 01F4      		brne .L8
- 130 0056 00C0      		rjmp .L9
- 131               	.LVL7:
- 132               	.L6:
- 133               	.LBE84:
- 134               	.LBE83:
- 135               	.LM24:
- 136 0058 8D3F      		cpi r24,253
- 137 005a 9105      		cpc r25,__zero_reg__
- 138 005c 01F4      		brne .L3
- 139               	.LM25:
- 140 005e 68BB      		out 56-32,r22
- 141 0060 28EB      		ldi r18,lo8(3000)
- 142 0062 3BE0      		ldi r19,hi8(3000)
- 143               	.LVL8:
- 144               	.L10:
- 145               	.LBB87:
- 146               	.LBB78:
- 147               	.LBB77:
- 148               	.LBB76:
- 149               	.LM26:
- 150 0064 FA01      		movw r30,r20
- 151               	.LVL9:
- 152               	/* #APP */
- 153               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 154 0066 3197      		1: sbiw r30,1
- 155 0068 01F4      		brne 1b
- 156               	 ;  0 "" 2
- 157               	/* #NOAPP */
- 158               	.LBE76:
- 159               	.LBE77:
- 160               	.LM27:
- 161 006a 2150      		subi r18,lo8(-(-1))
- 162 006c 3040      		sbci r19,hi8(-(-1))
- 163               	.LM28:
- 164 006e 01F4      		brne .L10
- 165               	.LBE78:
- 166               	.LBE87:
- 167               	.LM29:
- 168 0070 A8BB      		out 56-32,r26
- 169 0072 28EB      		ldi r18,lo8(3000)
- 170 0074 3BE0      		ldi r19,hi8(3000)
- 171               	.LVL10:
- 172               	.L11:
- 173               	.LBB88:
- 174               	.LBB89:
- 175               	.LBB90:
- 176               	.LBB91:
- 177               	.LM30:
- 178 0076 FA01      		movw r30,r20
- 179               	.LVL11:
- 180               	/* #APP */
- 181               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 182 0078 3197      		1: sbiw r30,1
- 183 007a 01F4      		brne 1b
- 184               	 ;  0 "" 2
- 185               	/* #NOAPP */
- 186               	.LBE91:
- 187               	.LBE90:
- 188               	.LM31:
- 189 007c 2150      		subi r18,lo8(-(-1))
- 190 007e 3040      		sbci r19,hi8(-(-1))
- 191               	.LM32:
- 192 0080 01F4      		brne .L11
- 193 0082 00C0      		rjmp .L12
- 194               	.LVL12:
- 195               	.L3:
- 196               	.LBE89:
- 197               	.LBE88:
- 198               	.LM33:
- 199 0084 8C3F      		cpi r24,252
- 200 0086 9105      		cpc r25,__zero_reg__
- 201 0088 01F4      		brne .L5
- 202               	.LM34:
- 203 008a 68BB      		out 56-32,r22
- 204 008c 88EB      		ldi r24,lo8(3000)
- 205 008e 9BE0      		ldi r25,hi8(3000)
- 206               	.LVL13:
- 207               	.L13:
- 208               	.LBB92:
- 209               	.LBB93:
- 210               	.LBB94:
- 211               	.LBB95:
- 212               	.LM35:
- 213 0090 FA01      		movw r30,r20
- 214               	.LVL14:
- 215               	/* #APP */
- 216               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 217 0092 3197      		1: sbiw r30,1
- 218 0094 01F4      		brne 1b
- 219               	 ;  0 "" 2
- 220               	/* #NOAPP */
- 221               	.LBE95:
- 222               	.LBE94:
- 223               	.LM36:
- 224 0096 0197      		sbiw r24,1
- 225               	.LM37:
- 226 0098 01F4      		brne .L13
- 227               	.LBE93:
- 228               	.LBE92:
- 229               	.LM38:
- 230 009a A8BB      		out 56-32,r26
- 231 009c 88EB      		ldi r24,lo8(3000)
- 232 009e 9BE0      		ldi r25,hi8(3000)
- 233               	.LVL15:
- 234               	.L14:
- 235               	.LBB96:
- 236               	.LBB97:
- 237               	.LBB98:
- 238               	.LBB99:
- 239               	.LM39:
- 240 00a0 FA01      		movw r30,r20
- 241               	.LVL16:
- 242               	/* #APP */
- 243               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 244 00a2 3197      		1: sbiw r30,1
- 245 00a4 01F4      		brne 1b
- 246               	 ;  0 "" 2
- 247               	/* #NOAPP */
- 248               	.LBE99:
- 249               	.LBE98:
- 250               	.LM40:
- 251 00a6 0197      		sbiw r24,1
- 252               	.LM41:
- 253 00a8 01F4      		brne .L14
- 254 00aa 00C0      		rjmp .L36
- 255               	.LVL17:
- 256               	.L5:
- 257               	.LBE97:
- 258               	.LBE96:
- 259               	.LM42:
- 260 00ac 8B3F      		cpi r24,251
- 261 00ae 9105      		cpc r25,__zero_reg__
- 262 00b0 01F4      		brne .L16
- 263               	.LM43:
- 264 00b2 78BB      		out 56-32,r23
- 265 00b4 00C0      		rjmp .L36
- 266               	.L16:
- 267               	.LM44:
- 268 00b6 8A3F      		cpi r24,250
- 269 00b8 9105      		cpc r25,__zero_reg__
- 270 00ba 01F4      		brne .L9
- 271               	.LM45:
- 272 00bc 68BB      		out 56-32,r22
- 273 00be 88EB      		ldi r24,lo8(3000)
- 274 00c0 9BE0      		ldi r25,hi8(3000)
- 275               	.LVL18:
- 276               	.L17:
- 277               	.LBB100:
- 278               	.LBB101:
- 279               	.LBB102:
- 280               	.LBB103:
- 281               	.LM46:
- 282 00c2 FA01      		movw r30,r20
- 283               	.LVL19:
- 284               	/* #APP */
- 285               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 286 00c4 3197      		1: sbiw r30,1
- 287 00c6 01F4      		brne 1b
- 288               	 ;  0 "" 2
- 289               	/* #NOAPP */
- 290               	.LBE103:
- 291               	.LBE102:
- 292               	.LM47:
- 293 00c8 0197      		sbiw r24,1
- 294               	.LM48:
- 295 00ca 01F4      		brne .L17
- 296               	.LBE101:
- 297               	.LBE100:
- 298               	.LM49:
- 299 00cc A8BB      		out 56-32,r26
- 300 00ce 88EB      		ldi r24,lo8(3000)
- 301 00d0 9BE0      		ldi r25,hi8(3000)
- 302               	.LVL20:
- 303               	.L18:
- 304               	.LBB104:
- 305               	.LBB105:
- 306               	.LBB106:
- 307               	.LBB107:
- 308               	.LM50:
- 309 00d2 FA01      		movw r30,r20
- 310               	.LVL21:
- 311               	/* #APP */
- 312               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 313 00d4 3197      		1: sbiw r30,1
- 314 00d6 01F4      		brne 1b
- 315               	 ;  0 "" 2
- 316               	/* #NOAPP */
- 317               	.LBE107:
- 318               	.LBE106:
- 319               	.LM51:
- 320 00d8 0197      		sbiw r24,1
- 321               	.LM52:
- 322 00da 01F4      		brne .L18
- 323 00dc 00C0      		rjmp .L36
- 324               	.LVL22:
- 325               	.L9:
- 326               	.LBE105:
- 327               	.LBE104:
- 328               	.LM53:
- 329 00de 893F      		cpi r24,249
- 330 00e0 9105      		cpc r25,__zero_reg__
- 331 00e2 01F4      		brne .L12
- 332               	.LM54:
- 333 00e4 68BB      		out 56-32,r22
- 334 00e6 88EB      		ldi r24,lo8(3000)
- 335 00e8 9BE0      		ldi r25,hi8(3000)
- 336               	.LVL23:
- 337               	.L19:
- 338               	.LBB108:
- 339               	.LBB109:
- 340               	.LBB110:
- 341               	.LBB111:
- 342               	.LM55:
- 343 00ea FA01      		movw r30,r20
- 344               	.LVL24:
- 345               	/* #APP */
- 346               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 347 00ec 3197      		1: sbiw r30,1
- 348 00ee 01F4      		brne 1b
- 349               	 ;  0 "" 2
- 350               	/* #NOAPP */
- 351               	.LBE111:
- 352               	.LBE110:
- 353               	.LM56:
- 354 00f0 0197      		sbiw r24,1
- 355               	.LM57:
- 356 00f2 01F4      		brne .L19
- 357               	.LBE109:
- 358               	.LBE108:
- 359               	.LM58:
- 360 00f4 78BB      		out 56-32,r23
- 361 00f6 88EB      		ldi r24,lo8(3000)
- 362 00f8 9BE0      		ldi r25,hi8(3000)
- 363               	.LVL25:
- 364               	.L20:
- 365               	.LBB112:
- 366               	.LBB113:
- 367               	.LBB114:
- 368               	.LBB115:
- 369               	.LM59:
- 370 00fa FA01      		movw r30,r20
- 371               	.LVL26:
- 372               	/* #APP */
- 373               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 374 00fc 3197      		1: sbiw r30,1
- 375 00fe 01F4      		brne 1b
- 376               	 ;  0 "" 2
- 377               	/* #NOAPP */
- 378               	.LBE115:
- 379               	.LBE114:
- 380               	.LM60:
- 381 0100 0197      		sbiw r24,1
- 382               	.LM61:
- 383 0102 01F4      		brne .L20
- 384 0104 00C0      		rjmp .L36
- 385               	.LVL27:
- 386               	.L12:
- 387               	.LBE113:
- 388               	.LBE112:
- 389               	.LM62:
- 390 0106 883F      		cpi r24,248
- 391 0108 9105      		cpc r25,__zero_reg__
- 392 010a 01F0      		breq .+2
- 393 010c 00C0      		rjmp .L36
- 394               	.LM63:
- 395 010e 78BB      		out 56-32,r23
- 396 0110 80E2      		ldi r24,lo8(20000)
- 397 0112 9EE4      		ldi r25,hi8(20000)
- 398               	.LVL28:
- 399               	.L21:
- 400               	.LBB116:
- 401               	.LBB117:
- 402               	.LBB118:
- 403               	.LBB119:
- 404               	.LM64:
- 405 0114 FA01      		movw r30,r20
- 406               	.LVL29:
- 407               	/* #APP */
- 408               	 ;  105 "d:/programs/winavr/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 409 0116 3197      		1: sbiw r30,1
- 410 0118 01F4      		brne 1b
- 411               	 ;  0 "" 2
- 412               	/* #NOAPP */
- 413               	.LBE119:
- 414               	.LBE118:
- 415               	.LM65:
- 416 011a 0197      		sbiw r24,1
- 417               	.LM66:
- 418 011c 01F4      		brne .L21
- 419 011e 00C0      		rjmp .L36
- 420               	.LBE117:
- 421               	.LBE116:
- 422               	.LFE6:
- 448               	.Letext0:
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.file 1 "OAR.c"
+  11               		.section	.text.startup,"ax",@progbits
+  12               	.global	main
+  14               	main:
+  15               	.LFB5:
+   1:OAR.c         **** /*
+   2:OAR.c         ****  * Project : Obstacle Avoider Robot
+   3:OAR.c         ****  * Level   : Kaizen Robotics Program - Level 1
+   4:OAR.c         ****  * Board   : ATmega16 @ 1 MHz, Embedded C (WinAVR, register level)
+   5:OAR.c         ****  *
+   6:OAR.c         ****  * Drives forward until one of three front IR proximity sensors detects an
+   7:OAR.c         ****  * obstacle, then steers or backs away from it. The sensors pull their
+   8:OAR.c         ****  * output low when something is in front of them.
+   9:OAR.c         ****  *
+  10:OAR.c         ****  * Wiring:
+  11:OAR.c         ****  *   PD0        <- right IR proximity sensor   (internal pull-up enabled)
+  12:OAR.c         ****  *   PD1        <- centre IR proximity sensor  (internal pull-up enabled)
+  13:OAR.c         ****  *   PD2        <- left IR proximity sensor    (internal pull-up enabled)
+  14:OAR.c         ****  *   PD3        <- auxiliary sensor input      (internal pull-up enabled)
+  15:OAR.c         ****  *   PB0..PB3   -> L293D motor driver inputs
+  16:OAR.c         ****  */
+  17:OAR.c         **** 
+  18:OAR.c         **** #include <avr/io.h>
+  19:OAR.c         **** #include <util/delay.h>
+  20:OAR.c         **** 
+  21:OAR.c         **** #define MOTOR_FORWARD   0b00001010
+  22:OAR.c         **** #define MOTOR_BACKWARD  0b00000101
+  23:OAR.c         **** #define MOTOR_LEFT      0b00000110  // Spin left on the spot
+  24:OAR.c         **** #define MOTOR_RIGHT     0b00001001  // Spin right on the spot
+  25:OAR.c         **** 
+  26:OAR.c         **** #define BACK_OFF_MS     300         // Reverse time before turning away
+  27:OAR.c         **** #define TURN_MS         300         // Turn time after reversing
+  28:OAR.c         **** #define ESCAPE_TURN_MS  2000        // Turn time when boxed in on all sides
+  29:OAR.c         **** 
+  30:OAR.c         **** // PIND patterns: a 0 bit means that sensor sees an obstacle
+  31:OAR.c         **** #define CLEAR               0b11111111
+  32:OAR.c         **** #define OBSTACLE_RIGHT      0b11111110
+  33:OAR.c         **** #define OBSTACLE_CENTRE     0b11111101
+  34:OAR.c         **** #define OBSTACLE_CENTRE_RIGHT 0b11111100
+  35:OAR.c         **** #define OBSTACLE_LEFT       0b11111011
+  36:OAR.c         **** #define OBSTACLE_LEFT_RIGHT 0b11111010
+  37:OAR.c         **** #define OBSTACLE_LEFT_CENTRE 0b11111001
+  38:OAR.c         **** #define OBSTACLE_ALL        0b11111000
+  39:OAR.c         **** #define OBSTACLE_CENTRE_AUX 0b11110101
+  40:OAR.c         **** 
+  41:OAR.c         **** // Reverse away from the obstacle, then turn for TURN_MS
+  42:OAR.c         **** static void back_off_and_turn(uint8_t turn)
+  43:OAR.c         **** {
+  44:OAR.c         ****     PORTB = MOTOR_BACKWARD;
+  45:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+  46:OAR.c         ****     PORTB = turn;
+  47:OAR.c         ****     _delay_ms(TURN_MS);
+  48:OAR.c         **** }
+  49:OAR.c         **** 
+  50:OAR.c         **** int main(void)
+  51:OAR.c         **** {
+  16               		.loc 1 51 1 view -0
+  17               		.cfi_startproc
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  52:OAR.c         ****     DDRD  = 0b00000000;             // Port D is an input port
+  22               		.loc 1 52 5 view .LVU1
+  23               		.loc 1 52 11 is_stmt 0 view .LVU2
+  24 0000 11BA      		out 0x11,__zero_reg__
+  53:OAR.c         ****     PORTD = 0b11111111;             // Enable pull-ups on Port D
+  25               		.loc 1 53 5 is_stmt 1 view .LVU3
+  26               		.loc 1 53 11 is_stmt 0 view .LVU4
+  27 0002 8FEF      		ldi r24,lo8(-1)
+  28 0004 82BB      		out 0x12,r24
+  54:OAR.c         ****     DDRB  = 0b11111111;             // Port B is an output port
+  29               		.loc 1 54 5 is_stmt 1 view .LVU5
+  30               		.loc 1 54 11 is_stmt 0 view .LVU6
+  31 0006 87BB      		out 0x17,r24
+  55:OAR.c         **** 
+  56:OAR.c         ****     while (1)
+  57:OAR.c         ****     {
+  58:OAR.c         ****         switch (PIND)
+  59:OAR.c         ****         {
+  60:OAR.c         ****             case CLEAR:
+  61:OAR.c         ****                 PORTB = MOTOR_FORWARD;
+  62:OAR.c         ****                 break;
+  63:OAR.c         **** 
+  64:OAR.c         ****             case OBSTACLE_RIGHT:
+  65:OAR.c         ****                 PORTB = MOTOR_LEFT;
+  66:OAR.c         ****                 break;
+  67:OAR.c         **** 
+  68:OAR.c         ****             case OBSTACLE_LEFT:
+  69:OAR.c         ****                 PORTB = MOTOR_RIGHT;
+  70:OAR.c         ****                 break;
+  71:OAR.c         **** 
+  72:OAR.c         ****             case OBSTACLE_CENTRE:
+  73:OAR.c         ****             case OBSTACLE_CENTRE_RIGHT:
+  74:OAR.c         ****             case OBSTACLE_LEFT_RIGHT:
+  75:OAR.c         ****                 back_off_and_turn(MOTOR_LEFT);
+  76:OAR.c         ****                 break;
+  77:OAR.c         **** 
+  78:OAR.c         ****             case OBSTACLE_LEFT_CENTRE:
+  79:OAR.c         ****             case OBSTACLE_CENTRE_AUX:
+  80:OAR.c         ****                 back_off_and_turn(MOTOR_RIGHT);
+  81:OAR.c         ****                 break;
+  82:OAR.c         **** 
+  83:OAR.c         ****             case OBSTACLE_ALL:
+  84:OAR.c         ****                 PORTB = MOTOR_RIGHT;        // Boxed in: turn until clear
+  32               		.loc 1 84 23 view .LVU7
+  33 0008 89E0      		ldi r24,lo8(9)
+  34               	.LBB22:
+  35               	.LBB23:
+  44:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+  36               		.loc 1 44 11 view .LVU8
+  37 000a 95E0      		ldi r25,lo8(5)
+  38               	.LBE23:
+  39               	.LBE22:
+  40               	.LBB31:
+  41               	.LBB32:
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+  42               		.loc 1 46 11 view .LVU9
+  43 000c 26E0      		ldi r18,lo8(6)
+  44               	.LBE32:
+  45               	.LBE31:
+  61:OAR.c         ****                 break;
+  46               		.loc 1 61 23 view .LVU10
+  47 000e 4AE0      		ldi r20,lo8(10)
+  48               	.L12:
+  56:OAR.c         ****     {
+  49               		.loc 1 56 5 is_stmt 1 view .LVU11
+  58:OAR.c         ****         {
+  50               		.loc 1 58 9 view .LVU12
+  58:OAR.c         ****         {
+  51               		.loc 1 58 17 is_stmt 0 view .LVU13
+  52 0010 30B3      		in r19,0x10
+  58:OAR.c         ****         {
+  53               		.loc 1 58 9 view .LVU14
+  54 0012 EBE0      		ldi r30,lo8(11)
+  55 0014 E30F      		add r30,r19
+  56 0016 353F      		cpi r19,lo8(-11)
+  57 0018 00F0      		brlo .L12
+  58 001a F0E0      		ldi r31,0
+  59 001c E050      		subi r30,lo8(-(gs(.L5)))
+  60 001e F040      		sbci r31,hi8(-(gs(.L5)))
+  61 0020 0C94 0000 		jmp __tablejump2__
+  62               		.section	.jumptables.gcc.main,"a",@progbits
+  63               		.p2align	1
+  64               	.L5:
+  65 0000 0000      		.word gs(.L9)
+  66 0002 0000      		.word gs(.L12)
+  67 0004 0000      		.word gs(.L12)
+  68 0006 0000      		.word gs(.L10)
+  69 0008 0000      		.word gs(.L9)
+  70 000a 0000      		.word gs(.L7)
+  71 000c 0000      		.word gs(.L8)
+  72 000e 0000      		.word gs(.L7)
+  73 0010 0000      		.word gs(.L7)
+  74 0012 0000      		.word gs(.L6)
+  75 0014 0000      		.word gs(.L4)
+  76               		.section	.text.startup
+  77               	.L4:
+  61:OAR.c         ****                 break;
+  78               		.loc 1 61 17 is_stmt 1 view .LVU15
+  61:OAR.c         ****                 break;
+  79               		.loc 1 61 23 is_stmt 0 view .LVU16
+  80 0024 48BB      		out 0x18,r20
+  62:OAR.c         **** 
+  81               		.loc 1 62 17 is_stmt 1 view .LVU17
+  82 0026 00C0      		rjmp .L12
+  83               	.L6:
+  65:OAR.c         ****                 break;
+  84               		.loc 1 65 17 view .LVU18
+  65:OAR.c         ****                 break;
+  85               		.loc 1 65 23 is_stmt 0 view .LVU19
+  86 0028 28BB      		out 0x18,r18
+  66:OAR.c         **** 
+  87               		.loc 1 66 17 is_stmt 1 view .LVU20
+  88 002a 00C0      		rjmp .L12
+  89               	.L8:
+  69:OAR.c         ****                 break;
+  90               		.loc 1 69 17 view .LVU21
+  69:OAR.c         ****                 break;
+  91               		.loc 1 69 23 is_stmt 0 view .LVU22
+  92 002c 88BB      		out 0x18,r24
+  70:OAR.c         **** 
+  93               		.loc 1 70 17 is_stmt 1 view .LVU23
+  94 002e 00C0      		rjmp .L12
+  95               	.L7:
+  75:OAR.c         ****                 break;
+  96               		.loc 1 75 17 view .LVU24
+  97               	.LVL0:
+  98               	.LBB38:
+  99               	.LBI31:
+  42:OAR.c         **** {
+ 100               		.loc 1 42 13 view .LVU25
+ 101               	.LBB37:
+  44:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+ 102               		.loc 1 44 5 view .LVU26
+  44:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+ 103               		.loc 1 44 11 is_stmt 0 view .LVU27
+ 104 0030 98BB      		out 0x18,r25
+  45:OAR.c         ****     PORTB = turn;
+ 105               		.loc 1 45 5 is_stmt 1 view .LVU28
+ 106               	.LVL1:
+ 107               	.LBB33:
+ 108               	.LBI33:
+ 109               		.file 2 "/tmp/avrtc/root/usr/lib/avr/include/util/delay.h"
+   1:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    All rights reserved.
+   5:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+   6:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+   9:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  12:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      distribution.
+  16:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  17:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  21:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  33:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /* $Id$ */
+  34:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  35:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  38:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #ifndef __DOXYGEN__
+  39:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #  ifndef __HAS_DELAY_CYCLES
+  40:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #    define __HAS_DELAY_CYCLES 1
+  41:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #  endif
+  42:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  43:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #  ifndef __ATTR_ALWAYS_INLINE__
+  44:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #    define __ATTR_ALWAYS_INLINE__ __inline__ __attribute__((__always_inline__))
+  45:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #  endif
+  46:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  47:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #endif  /* __DOXYGEN__ */
+  48:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  49:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #include <stdint.h>
+  50:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  51:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  52:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /** \file */
+  53:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  54:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \code
+  55:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  56:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     //#define F_CPU 14.7456e6
+  57:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     #include <util/delay.h>
+  58:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \endcode
+  59:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  60:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  61:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  62:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  63:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     used.
+  64:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  65:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  66:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     busy-wait functions from <tt>\<util/delay_basic.h\></tt>.  They are meant as
+  67:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  68:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  69:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  70:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  71:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  72:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  73:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  74:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  75:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  76:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  77:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  78:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  79:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  80:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  81:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     routines linked into the application.
+  82:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  83:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  84:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  85:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  86:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** */
+  87:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  88:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  89:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #ifndef F_CPU
+  90:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  91:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  92:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /** \ingroup util_delay
+  93:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \def F_CPU
+  94:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     \brief CPU frequency in Hz
+  95:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+  96:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     The macro F_CPU specifies the CPU frequency to be considered by
+  97:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     the delay macros.  This macro is normally supplied by the
+  98:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     environment (e.g. from within a project header, or the project's
+  99:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     Makefile).  The value 1 MHz here is only provided as a "vanilla"
+ 100:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     fallback if no such user-provided definition could be found.
+ 101:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 102:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     In terms of the delay functions, the CPU frequency can be given as
+ 103:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     a floating-point constant (e.g. 3.6864e6 for 3.6864 MHz).
+ 104:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     However, the macros in <util/setbaud.h> require it to be an
+ 105:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****     integer value.
+ 106:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****  */
+ 107:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** # define F_CPU 1000000UL
+ 108:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #endif
+ 109:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 110:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+ 111:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+ 112:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #endif
+ 113:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 114:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** /**
+ 115:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    \ingroup util_delay
+ 116:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 117:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 118:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 119:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    The macro #F_CPU is supposed to be defined to a
+ 120:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 121:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 122:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 123:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 124:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 125:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 126:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10&nbsp;ms, providing
+ 127:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 128:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 129:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 130:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    If the avr-gcc toolchain has \c __builtin_avr_delay_cycles()
+ 131:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 132:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflow may result in
+ 133:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    no delay i.e., 0&nbsp;ms.
+ 134:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 135:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Conversion of \c __ms into clock cycles may not always result in
+ 136:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    an integral value.  By default, the clock cycles are rounded up to the next
+ 137:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    integer. This ensures that the user gets at least \c __ms
+ 138:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    microseconds of delay.
+ 139:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 140:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    Alternatively, by defining the macro \c __DELAY_ROUND_DOWN__, or
+ 141:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    \c __DELAY_ROUND_CLOSEST__, before including this header file, the
+ 142:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    algorithm can be made to round down, or round to closest integer,
+ 143:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    respectively.
+ 144:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 145:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    \note The implementation of _delay_ms() based on
+ 146:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    \c __builtin_avr_delay_cycles() is not backward compatible with older
+ 147:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    implementations.  In order to get functionality backward compatible
+ 148:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    with previous versions, the macro \c __DELAY_BACKWARD_COMPATIBLE__
+ 149:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****    must be defined before including this header file.
+ 150:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****  */
+ 151:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** static __ATTR_ALWAYS_INLINE__ void _delay_ms(double __ms);
+ 152:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 153:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** void
+ 154:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 110               		.loc 2 154 1 view .LVU29
+ 111               	.LBB34:
+ 155:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** {
+ 156:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	double __tmp ;
+ 112               		.loc 2 156 2 view .LVU30
+ 157:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) \
+ 158:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h ****   && !defined(__DELAY_BACKWARD_COMPATIBLE__)
+ 159:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 113               		.loc 2 159 2 view .LVU31
+ 160:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(uint32_t);
+ 114               		.loc 2 160 2 view .LVU32
+ 161:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 115               		.loc 2 161 2 view .LVU33
+ 162:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 163:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 164:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)__builtin_fabs(__tmp);
+ 165:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 166:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 167:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(__builtin_fabs(__tmp)+0.5);
+ 168:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 169:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#else
+ 170:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 		//round up by default
+ 171:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(__builtin_ceil(__builtin_fabs(__tmp)));
+ 116               		.loc 2 171 3 view .LVU34
+ 172:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#endif
+ 173:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 174:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 117               		.loc 2 174 2 view .LVU35
+ 118 0032 3FE5      		ldi r19,lo8(59999)
+ 119 0034 5AEE      		ldi r21,hi8(59999)
+ 120 0036 60E0      		ldi r22,hlo8(59999)
+ 121 0038 3150      	1:	subi r19,1
+ 122 003a 5040      		sbci r21,0
+ 123 003c 6040      		sbci r22,0
+ 124 003e 01F4      		brne 1b
+ 125 0040 00C0      		rjmp .
+ 126 0042 0000      		nop
+ 127               	.LVL2:
+ 128               		.loc 2 174 2 is_stmt 0 view .LVU36
+ 129               	.LBE34:
+ 130               	.LBE33:
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+ 131               		.loc 1 46 5 is_stmt 1 view .LVU37
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+ 132               		.loc 1 46 11 is_stmt 0 view .LVU38
+ 133 0044 28BB      		out 0x18,r18
+  47:OAR.c         **** }
+ 134               		.loc 1 47 5 is_stmt 1 view .LVU39
+ 135               	.LVL3:
+ 136               	.LBB35:
+ 137               	.LBI35:
+ 154:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** {
+ 138               		.loc 2 154 1 view .LVU40
+ 139               	.LBB36:
+ 156:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) \
+ 140               		.loc 2 156 2 view .LVU41
+ 159:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(uint32_t);
+ 141               		.loc 2 159 2 view .LVU42
+ 160:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 142               		.loc 2 160 2 view .LVU43
+ 161:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 143               		.loc 2 161 2 view .LVU44
+ 171:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#endif
+ 144               		.loc 2 171 3 view .LVU45
+ 145               		.loc 2 174 2 view .LVU46
+ 146               	.L13:
+ 147               		.loc 2 174 2 is_stmt 0 view .LVU47
+ 148               	.LBE36:
+ 149               	.LBE35:
+ 150               	.LBE37:
+ 151               	.LBE38:
+ 152               	.LBB39:
+ 153               	.LBB28:
+  47:OAR.c         **** }
+ 154               		.loc 1 47 5 is_stmt 1 view .LVU48
+ 155               	.LBB24:
+ 156               	.LBI24:
+ 154:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** {
+ 157               		.loc 2 154 1 view .LVU49
+ 158               	.LBB25:
+ 156:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) \
+ 159               		.loc 2 156 2 view .LVU50
+ 159:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(uint32_t);
+ 160               		.loc 2 159 2 view .LVU51
+ 160:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 161               		.loc 2 160 2 view .LVU52
+ 161:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 162               		.loc 2 161 2 view .LVU53
+ 171:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#endif
+ 163               		.loc 2 171 3 view .LVU54
+ 164               		.loc 2 174 2 view .LVU55
+ 165 0046 3FE5      		ldi r19,lo8(59999)
+ 166 0048 5AEE      		ldi r21,hi8(59999)
+ 167 004a 60E0      		ldi r22,hlo8(59999)
+ 168 004c 3150      	1:	subi r19,1
+ 169 004e 5040      		sbci r21,0
+ 170 0050 6040      		sbci r22,0
+ 171 0052 01F4      		brne 1b
+ 172               	.LVL4:
+ 173               	.L14:
+ 174               		.loc 2 174 2 is_stmt 0 view .LVU56
+ 175 0054 00C0      		rjmp .
+ 176 0056 0000      		nop
+ 177               	.LBE25:
+ 178               	.LBE24:
+ 179               	.LBE28:
+ 180               	.LBE39:
+  81:OAR.c         **** 
+ 181               		.loc 1 81 17 is_stmt 1 view .LVU57
+ 182               	.LBB40:
+ 183               	.LBB29:
+  48:OAR.c         **** 
+ 184               		.loc 1 48 1 is_stmt 0 view .LVU58
+ 185 0058 00C0      		rjmp .L12
+ 186               	.L9:
+ 187               	.LBE29:
+ 188               	.LBE40:
+  80:OAR.c         ****                 break;
+ 189               		.loc 1 80 17 is_stmt 1 view .LVU59
+ 190               	.LVL5:
+ 191               	.LBB41:
+ 192               	.LBI22:
+  42:OAR.c         **** {
+ 193               		.loc 1 42 13 view .LVU60
+ 194               	.LBB30:
+  44:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+ 195               		.loc 1 44 5 view .LVU61
+  44:OAR.c         ****     _delay_ms(BACK_OFF_MS);
+ 196               		.loc 1 44 11 is_stmt 0 view .LVU62
+ 197 005a 98BB      		out 0x18,r25
+  45:OAR.c         ****     PORTB = turn;
+ 198               		.loc 1 45 5 is_stmt 1 view .LVU63
+ 199               	.LVL6:
+ 200               	.LBB26:
+ 201               	.LBI26:
+ 154:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** {
+ 202               		.loc 2 154 1 view .LVU64
+ 203               	.LBB27:
+ 156:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) \
+ 204               		.loc 2 156 2 view .LVU65
+ 159:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(uint32_t);
+ 205               		.loc 2 159 2 view .LVU66
+ 160:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 206               		.loc 2 160 2 view .LVU67
+ 161:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 207               		.loc 2 161 2 view .LVU68
+ 171:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#endif
+ 208               		.loc 2 171 3 view .LVU69
+ 209               		.loc 2 174 2 view .LVU70
+ 210 005c 3FE5      		ldi r19,lo8(59999)
+ 211 005e 5AEE      		ldi r21,hi8(59999)
+ 212 0060 60E0      		ldi r22,hlo8(59999)
+ 213 0062 3150      	1:	subi r19,1
+ 214 0064 5040      		sbci r21,0
+ 215 0066 6040      		sbci r22,0
+ 216 0068 01F4      		brne 1b
+ 217 006a 00C0      		rjmp .
+ 218 006c 0000      		nop
+ 219               	.LVL7:
+ 220               		.loc 2 174 2 is_stmt 0 view .LVU71
+ 221               	.LBE27:
+ 222               	.LBE26:
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+ 223               		.loc 1 46 5 is_stmt 1 view .LVU72
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+ 224               		.loc 1 46 11 is_stmt 0 view .LVU73
+ 225 006e 88BB      		out 0x18,r24
+ 226 0070 00C0      		rjmp .L13
+ 227               	.LVL8:
+ 228               	.L10:
+  46:OAR.c         ****     _delay_ms(TURN_MS);
+ 229               		.loc 1 46 11 view .LVU74
+ 230               	.LBE30:
+ 231               	.LBE41:
+ 232               		.loc 1 84 17 is_stmt 1 view .LVU75
+ 233               		.loc 1 84 23 is_stmt 0 view .LVU76
+ 234 0072 88BB      		out 0x18,r24
+  85:OAR.c         ****                 _delay_ms(ESCAPE_TURN_MS);
+ 235               		.loc 1 85 17 is_stmt 1 view .LVU77
+ 236               	.LVL9:
+ 237               	.LBB42:
+ 238               	.LBI42:
+ 154:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** {
+ 239               		.loc 2 154 1 view .LVU78
+ 240               	.LBB43:
+ 156:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) \
+ 241               		.loc 2 156 2 view .LVU79
+ 159:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(uint32_t);
+ 242               		.loc 2 159 2 view .LVU80
+ 160:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 243               		.loc 2 160 2 view .LVU81
+ 161:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 
+ 244               		.loc 2 161 2 view .LVU82
+ 171:/tmp/avrtc/root/usr/lib/avr/include/util/delay.h **** 	#endif
+ 245               		.loc 2 171 3 view .LVU83
+ 246               		.loc 2 174 2 view .LVU84
+ 247 0074 3FE7      		ldi r19,lo8(399999)
+ 248 0076 5AE1      		ldi r21,hi8(399999)
+ 249 0078 66E0      		ldi r22,hlo8(399999)
+ 250 007a 3150      	1:	subi r19,1
+ 251 007c 5040      		sbci r21,0
+ 252 007e 6040      		sbci r22,0
+ 253 0080 01F4      		brne 1b
+ 254 0082 00C0      		rjmp .L14
+ 255               	.LBE43:
+ 256               	.LBE42:
+ 257               		.cfi_endproc
+ 258               	.LFE5:
+ 260               		.text
+ 261               	.Letext0:
+ 262               		.file 3 "/tmp/avrtc/root/usr/lib/avr/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 OAR.c
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:2      *ABS*:0000003f __SREG__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:3      *ABS*:0000003e __SP_H__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:4      *ABS*:0000003d __SP_L__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:5      *ABS*:00000034 __CCP__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\Nithish\AppData\Local\Temp/ccnF5Rl8.s:18     .text:00000000 main
+     /tmp/ccwO7vL7.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccwO7vL7.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccwO7vL7.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccwO7vL7.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccwO7vL7.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccwO7vL7.s:14     .text.startup:00000000 main
+     /tmp/ccwO7vL7.s:16     .text.startup:00000000 .Loc.0
+     /tmp/ccwO7vL7.s:17     .text.startup:00000000 L0
+     /tmp/ccwO7vL7.s:22     .text.startup:00000000 .Loc.1
+     /tmp/ccwO7vL7.s:23     .text.startup:00000000 .Loc.2
+     /tmp/ccwO7vL7.s:25     .text.startup:00000002 .Loc.3
+     /tmp/ccwO7vL7.s:26     .text.startup:00000002 .Loc.4
+     /tmp/ccwO7vL7.s:29     .text.startup:00000006 .Loc.5
+     /tmp/ccwO7vL7.s:30     .text.startup:00000006 .Loc.6
+     /tmp/ccwO7vL7.s:32     .text.startup:00000008 .Loc.7
+     /tmp/ccwO7vL7.s:36     .text.startup:0000000a .Loc.8
+     /tmp/ccwO7vL7.s:42     .text.startup:0000000c .Loc.9
+     /tmp/ccwO7vL7.s:46     .text.startup:0000000e .Loc.10
+     /tmp/ccwO7vL7.s:49     .text.startup:00000010 .Loc.11
+     /tmp/ccwO7vL7.s:50     .text.startup:00000010 .Loc.12
+     /tmp/ccwO7vL7.s:51     .text.startup:00000010 .Loc.13
+     /tmp/ccwO7vL7.s:53     .text.startup:00000012 .Loc.14
+     /tmp/ccwO7vL7.s:78     .text.startup:00000024 .Loc.15
+     /tmp/ccwO7vL7.s:79     .text.startup:00000024 .Loc.16
+     /tmp/ccwO7vL7.s:81     .text.startup:00000026 .Loc.17
+     /tmp/ccwO7vL7.s:84     .text.startup:00000028 .Loc.18
+     /tmp/ccwO7vL7.s:85     .text.startup:00000028 .Loc.19
+     /tmp/ccwO7vL7.s:87     .text.startup:0000002a .Loc.20
+     /tmp/ccwO7vL7.s:90     .text.startup:0000002c .Loc.21
+     /tmp/ccwO7vL7.s:91     .text.startup:0000002c .Loc.22
+     /tmp/ccwO7vL7.s:93     .text.startup:0000002e .Loc.23
+     /tmp/ccwO7vL7.s:96     .text.startup:00000030 .Loc.24
+     /tmp/ccwO7vL7.s:100    .text.startup:00000030 .Loc.25
+     /tmp/ccwO7vL7.s:102    .text.startup:00000030 .Loc.26
+     /tmp/ccwO7vL7.s:103    .text.startup:00000030 .Loc.27
+     /tmp/ccwO7vL7.s:105    .text.startup:00000032 .Loc.28
+     /tmp/ccwO7vL7.s:110    .text.startup:00000032 .Loc.29
+     /tmp/ccwO7vL7.s:112    .text.startup:00000032 .Loc.30
+     /tmp/ccwO7vL7.s:113    .text.startup:00000032 .Loc.31
+     /tmp/ccwO7vL7.s:114    .text.startup:00000032 .Loc.32
+     /tmp/ccwO7vL7.s:115    .text.startup:00000032 .Loc.33
+     /tmp/ccwO7vL7.s:116    .text.startup:00000032 .Loc.34
+     /tmp/ccwO7vL7.s:117    .text.startup:00000032 .Loc.35
+     /tmp/ccwO7vL7.s:125    .text.startup:00000042 L0
+     /tmp/ccwO7vL7.s:128    .text.startup:00000044 .Loc.36
+     /tmp/ccwO7vL7.s:131    .text.startup:00000044 .Loc.37
+     /tmp/ccwO7vL7.s:132    .text.startup:00000044 .Loc.38
+     /tmp/ccwO7vL7.s:134    .text.startup:00000046 .Loc.39
+     /tmp/ccwO7vL7.s:138    .text.startup:00000046 .Loc.40
+     /tmp/ccwO7vL7.s:140    .text.startup:00000046 .Loc.41
+     /tmp/ccwO7vL7.s:141    .text.startup:00000046 .Loc.42
+     /tmp/ccwO7vL7.s:142    .text.startup:00000046 .Loc.43
+     /tmp/ccwO7vL7.s:143    .text.startup:00000046 .Loc.44
+     /tmp/ccwO7vL7.s:144    .text.startup:00000046 .Loc.45
+     /tmp/ccwO7vL7.s:145    .text.startup:00000046 .Loc.46
+     /tmp/ccwO7vL7.s:147    .text.startup:00000046 .Loc.47
+     /tmp/ccwO7vL7.s:154    .text.startup:00000046 .Loc.48
+     /tmp/ccwO7vL7.s:157    .text.startup:00000046 .Loc.49
+     /tmp/ccwO7vL7.s:159    .text.startup:00000046 .Loc.50
+     /tmp/ccwO7vL7.s:160    .text.startup:00000046 .Loc.51
+     /tmp/ccwO7vL7.s:161    .text.startup:00000046 .Loc.52
+     /tmp/ccwO7vL7.s:162    .text.startup:00000046 .Loc.53
+     /tmp/ccwO7vL7.s:163    .text.startup:00000046 .Loc.54
+     /tmp/ccwO7vL7.s:164    .text.startup:00000046 .Loc.55
+     /tmp/ccwO7vL7.s:174    .text.startup:00000054 .Loc.56
+     /tmp/ccwO7vL7.s:175    .text.startup:00000056 L0
+     /tmp/ccwO7vL7.s:181    .text.startup:00000058 .Loc.57
+     /tmp/ccwO7vL7.s:184    .text.startup:00000058 .Loc.58
+     /tmp/ccwO7vL7.s:189    .text.startup:0000005a .Loc.59
+     /tmp/ccwO7vL7.s:193    .text.startup:0000005a .Loc.60
+     /tmp/ccwO7vL7.s:195    .text.startup:0000005a .Loc.61
+     /tmp/ccwO7vL7.s:196    .text.startup:0000005a .Loc.62
+     /tmp/ccwO7vL7.s:198    .text.startup:0000005c .Loc.63
+     /tmp/ccwO7vL7.s:202    .text.startup:0000005c .Loc.64
+     /tmp/ccwO7vL7.s:204    .text.startup:0000005c .Loc.65
+     /tmp/ccwO7vL7.s:205    .text.startup:0000005c .Loc.66
+     /tmp/ccwO7vL7.s:206    .text.startup:0000005c .Loc.67
+     /tmp/ccwO7vL7.s:207    .text.startup:0000005c .Loc.68
+     /tmp/ccwO7vL7.s:208    .text.startup:0000005c .Loc.69
+     /tmp/ccwO7vL7.s:209    .text.startup:0000005c .Loc.70
+     /tmp/ccwO7vL7.s:217    .text.startup:0000006c L0
+     /tmp/ccwO7vL7.s:220    .text.startup:0000006e .Loc.71
+     /tmp/ccwO7vL7.s:223    .text.startup:0000006e .Loc.72
+     /tmp/ccwO7vL7.s:224    .text.startup:0000006e .Loc.73
+     /tmp/ccwO7vL7.s:229    .text.startup:00000072 .Loc.74
+     /tmp/ccwO7vL7.s:232    .text.startup:00000072 .Loc.75
+     /tmp/ccwO7vL7.s:233    .text.startup:00000072 .Loc.76
+     /tmp/ccwO7vL7.s:235    .text.startup:00000074 .Loc.77
+     /tmp/ccwO7vL7.s:239    .text.startup:00000074 .Loc.78
+     /tmp/ccwO7vL7.s:241    .text.startup:00000074 .Loc.79
+     /tmp/ccwO7vL7.s:242    .text.startup:00000074 .Loc.80
+     /tmp/ccwO7vL7.s:243    .text.startup:00000074 .Loc.81
+     /tmp/ccwO7vL7.s:244    .text.startup:00000074 .Loc.82
+     /tmp/ccwO7vL7.s:245    .text.startup:00000074 .Loc.83
+     /tmp/ccwO7vL7.s:246    .text.startup:00000074 .Loc.84
+     /tmp/ccwO7vL7.s:257    .text.startup:00000084 L0
+     /tmp/ccwO7vL7.s:260    .text.startup:00000084 L0
+                     .debug_frame:00000000 L0
+     /tmp/ccwO7vL7.s:48     .text.startup:00000010 .L12
+     /tmp/ccwO7vL7.s:64     .jumptables.gcc.main:00000000 .L5
+     /tmp/ccwO7vL7.s:121    .text.startup:00000038 .L11
+     /tmp/ccwO7vL7.s:168    .text.startup:0000004c .L12
+     /tmp/ccwO7vL7.s:213    .text.startup:00000062 .L13
+     /tmp/ccwO7vL7.s:146    .text.startup:00000046 .L13
+     /tmp/ccwO7vL7.s:250    .text.startup:0000007a .L14
+     /tmp/ccwO7vL7.s:173    .text.startup:00000054 .L14
+     /tmp/ccwO7vL7.s:186    .text.startup:0000005a .L9
+     /tmp/ccwO7vL7.s:228    .text.startup:00000072 .L10
+     /tmp/ccwO7vL7.s:95     .text.startup:00000030 .L7
+     /tmp/ccwO7vL7.s:89     .text.startup:0000002c .L8
+     /tmp/ccwO7vL7.s:83     .text.startup:00000028 .L6
+     /tmp/ccwO7vL7.s:77     .text.startup:00000024 .L4
+     /tmp/ccwO7vL7.s:549    .debug_abbrev:00000000 .Ldebug_abbrev0
+     /tmp/ccwO7vL7.s:1029   .debug_ranges:00000000 .Ldebug_ranges0
+     /tmp/ccwO7vL7.s:1051   .debug_line:00000000 .Ldebug_line0
+     /tmp/ccwO7vL7.s:15     .text.startup:00000000 .LFB5
+     /tmp/ccwO7vL7.s:258    .text.startup:00000084 .LFE5
+     /tmp/ccwO7vL7.s:192    .text.startup:0000005a .LBI22
+     /tmp/ccwO7vL7.s:853    .debug_loc:00000002 .LLST0
+     /tmp/ccwO7vL7.s:850    .debug_loc:00000000 .LVUS0
+     /tmp/ccwO7vL7.s:156    .text.startup:00000046 .LBI24
+     /tmp/ccwO7vL7.s:155    .text.startup:00000046 .LBB24
+     /tmp/ccwO7vL7.s:178    .text.startup:00000058 .LBE24
+     /tmp/ccwO7vL7.s:864    .debug_loc:00000018 .LLST1
+     /tmp/ccwO7vL7.s:861    .debug_loc:00000016 .LVUS1
+     /tmp/ccwO7vL7.s:876    .debug_loc:00000032 .LLST2
+     /tmp/ccwO7vL7.s:873    .debug_loc:00000030 .LVUS2
+     /tmp/ccwO7vL7.s:888    .debug_loc:0000004c .LLST3
+     /tmp/ccwO7vL7.s:885    .debug_loc:0000004a .LVUS3
+     /tmp/ccwO7vL7.s:201    .text.startup:0000005c .LBI26
+     /tmp/ccwO7vL7.s:200    .text.startup:0000005c .LBB26
+     /tmp/ccwO7vL7.s:222    .text.startup:0000006e .LBE26
+     /tmp/ccwO7vL7.s:900    .debug_loc:00000066 .LLST4
+     /tmp/ccwO7vL7.s:897    .debug_loc:00000064 .LVUS4
+     /tmp/ccwO7vL7.s:912    .debug_loc:00000080 .LLST5
+     /tmp/ccwO7vL7.s:909    .debug_loc:0000007e .LVUS5
+     /tmp/ccwO7vL7.s:924    .debug_loc:0000009a .LLST6
+     /tmp/ccwO7vL7.s:921    .debug_loc:00000098 .LVUS6
+     /tmp/ccwO7vL7.s:99     .text.startup:00000030 .LBI31
+     /tmp/ccwO7vL7.s:936    .debug_loc:000000b4 .LLST7
+     /tmp/ccwO7vL7.s:933    .debug_loc:000000b2 .LVUS7
+     /tmp/ccwO7vL7.s:108    .text.startup:00000032 .LBI33
+     /tmp/ccwO7vL7.s:107    .text.startup:00000032 .LBB33
+     /tmp/ccwO7vL7.s:130    .text.startup:00000044 .LBE33
+     /tmp/ccwO7vL7.s:947    .debug_loc:000000ca .LLST8
+     /tmp/ccwO7vL7.s:944    .debug_loc:000000c8 .LVUS8
+     /tmp/ccwO7vL7.s:959    .debug_loc:000000e4 .LLST9
+     /tmp/ccwO7vL7.s:956    .debug_loc:000000e2 .LVUS9
+     /tmp/ccwO7vL7.s:971    .debug_loc:000000fe .LLST10
+     /tmp/ccwO7vL7.s:968    .debug_loc:000000fc .LVUS10
+     /tmp/ccwO7vL7.s:137    .text.startup:00000046 .LBI35
+     /tmp/ccwO7vL7.s:136    .text.startup:00000046 .LBB35
+     /tmp/ccwO7vL7.s:149    .text.startup:00000046 .LBE35
+     /tmp/ccwO7vL7.s:983    .debug_loc:00000118 .LLST11
+     /tmp/ccwO7vL7.s:980    .debug_loc:00000116 .LVUS11
+     /tmp/ccwO7vL7.s:995    .debug_loc:00000132 .LLST12
+     /tmp/ccwO7vL7.s:992    .debug_loc:00000130 .LVUS12
+     /tmp/ccwO7vL7.s:1007   .debug_loc:0000014c .LLST13
+     /tmp/ccwO7vL7.s:1004   .debug_loc:0000014a .LVUS13
+     /tmp/ccwO7vL7.s:238    .text.startup:00000074 .LBI42
+     /tmp/ccwO7vL7.s:237    .text.startup:00000074 .LBB42
+     /tmp/ccwO7vL7.s:256    .text.startup:00000084 .LBE42
+     /tmp/ccwO7vL7.s:190    .text.startup:0000005a .LVL5
+     /tmp/ccwO7vL7.s:227    .text.startup:00000072 .LVL8
+     /tmp/ccwO7vL7.s:135    .text.startup:00000046 .LVL3
+     /tmp/ccwO7vL7.s:172    .text.startup:00000054 .LVL4
+     /tmp/ccwO7vL7.s:199    .text.startup:0000005c .LVL6
+     /tmp/ccwO7vL7.s:219    .text.startup:0000006e .LVL7
+     /tmp/ccwO7vL7.s:97     .text.startup:00000030 .LVL0
+     /tmp/ccwO7vL7.s:106    .text.startup:00000032 .LVL1
+     /tmp/ccwO7vL7.s:127    .text.startup:00000044 .LVL2
+     /tmp/ccwO7vL7.s:264    .debug_info:00000000 .Ldebug_info0
+     /tmp/ccwO7vL7.s:34     .text.startup:0000000a .LBB22
+     /tmp/ccwO7vL7.s:39     .text.startup:0000000c .LBE22
+     /tmp/ccwO7vL7.s:152    .text.startup:00000046 .LBB39
+     /tmp/ccwO7vL7.s:180    .text.startup:00000058 .LBE39
+     /tmp/ccwO7vL7.s:182    .text.startup:00000058 .LBB40
+     /tmp/ccwO7vL7.s:188    .text.startup:0000005a .LBE40
+     /tmp/ccwO7vL7.s:191    .text.startup:0000005a .LBB41
+     /tmp/ccwO7vL7.s:231    .text.startup:00000072 .LBE41
+     /tmp/ccwO7vL7.s:40     .text.startup:0000000c .LBB31
+     /tmp/ccwO7vL7.s:45     .text.startup:0000000e .LBE31
+     /tmp/ccwO7vL7.s:98     .text.startup:00000030 .LBB38
+     /tmp/ccwO7vL7.s:151    .text.startup:00000046 .LBE38
 
-NO UNDEFINED SYMBOLS
+UNDEFINED SYMBOLS
+__tablejump2__

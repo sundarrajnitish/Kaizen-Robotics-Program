@@ -1,94 +1,240 @@
    1               		.file	"OARLFR.c"
-   2               	__SREG__ = 0x3f
-   3               	__SP_H__ = 0x3e
-   4               	__SP_L__ = 0x3d
-   5               	__CCP__  = 0x34
-   6               	__tmp_reg__ = 0
-   7               	__zero_reg__ = 1
-  15               	.Ltext0:
-  16               	.global	main
-  18               	main:
-  19               	.LFB6:
-  20               	.LM1:
-  21               	/* prologue: function */
-  22               	/* frame size = 0 */
-  23               	.LM2:
-  24 0000 11BA      		out 49-32,__zero_reg__
-  25               	.LM3:
-  26 0002 8FEF      		ldi r24,lo8(-1)
-  27 0004 87BB      		out 55-32,r24
-  28               	.LM4:
-  29 0006 82BB      		out 50-32,r24
-  30               	.LM5:
-  31 0008 5AE0      		ldi r21,lo8(10)
-  32               	.LM6:
-  33 000a 49E0      		ldi r20,lo8(9)
-  34               	.LM7:
-  35 000c 36E0      		ldi r19,lo8(6)
-  36               	.LM8:
-  37 000e 2AE1      		ldi r18,lo8(26)
-  38               	.LVL0:
-  39               	.L11:
-  40               	.LM9:
-  41 0010 80B3      		in r24,48-32
-  42               	.LVL1:
-  43 0012 90E0      		ldi r25,lo8(0)
-  44               	.LM10:
-  45 0014 8A3F      		cpi r24,250
-  46 0016 9105      		cpc r25,__zero_reg__
-  47               	.LVL2:
-  48 0018 01F4      		brne .L2
-  49               	.LM11:
-  50 001a 58BB      		out 56-32,r21
-  51 001c 00C0      		rjmp .L3
-  52               	.L2:
-  53               	.LM12:
-  54 001e 8B3F      		cpi r24,251
-  55 0020 9105      		cpc r25,__zero_reg__
-  56 0022 01F4      		brne .L4
-  57               	.LM13:
-  58 0024 38BB      		out 56-32,r19
-  59 0026 00C0      		rjmp .L5
-  60               	.L4:
-  61               	.LM14:
-  62 0028 8E3F      		cpi r24,254
-  63 002a 9105      		cpc r25,__zero_reg__
-  64 002c 01F4      		brne .L6
-  65               	.LM15:
-  66 002e 48BB      		out 56-32,r20
-  67 0030 00C0      		rjmp .L11
-  68               	.L6:
-  69               	.LM16:
-  70 0032 883F      		cpi r24,248
-  71 0034 9105      		cpc r25,__zero_reg__
-  72 0036 01F0      		breq .L12
-  73               	.L3:
-  74               	.LM17:
-  75 0038 893F      		cpi r24,249
-  76 003a 9105      		cpc r25,__zero_reg__
-  77 003c 01F4      		brne .L5
-  78               	.L12:
-  79               	.LM18:
-  80 003e 18BA      		out 56-32,__zero_reg__
-  81 0040 00C0      		rjmp .L11
-  82               	.L5:
-  83               	.LM19:
-  84 0042 8F3F      		cpi r24,255
-  85 0044 9105      		cpc r25,__zero_reg__
-  86 0046 01F4      		brne .L11
-  87               	.LM20:
-  88 0048 28BB      		out 56-32,r18
-  89 004a 00C0      		rjmp .L11
-  90               	.LFE6:
- 116               	.Letext0:
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.file 1 "OARLFR.c"
+  11               		.section	.text.startup,"ax",@progbits
+  12               	.global	main
+  14               	main:
+  15               	.LFB0:
+   1:OARLFR.c      **** /*
+   2:OARLFR.c      ****  * Project : Obstacle Avoiding Line Follower (OAR + LFR)
+   3:OARLFR.c      ****  * Level   : Kaizen Robotics Program - Level 1
+   4:OARLFR.c      ****  * Board   : ATmega16 @ 1 MHz, Embedded C (WinAVR, register level)
+   5:OARLFR.c      ****  *
+   6:OARLFR.c      ****  * Line follower with a front proximity sensor. It follows the black line
+   7:OARLFR.c      ****  * with two IR sensors, beeps while crossing junctions, and stops whenever
+   8:OARLFR.c      ****  * something blocks the path. It drives on once the obstacle is removed.
+   9:OARLFR.c      ****  *
+  10:OARLFR.c      ****  *   Line sensors     : 0 over white, 1 over the black line
+  11:OARLFR.c      ****  *   Obstacle sensor  : 0 when an obstacle is in front, 1 when clear
+  12:OARLFR.c      ****  *
+  13:OARLFR.c      ****  * Wiring:
+  14:OARLFR.c      ****  *   PD0        <- left line sensor   (internal pull-up enabled)
+  15:OARLFR.c      ****  *   PD1        <- obstacle sensor    (internal pull-up enabled)
+  16:OARLFR.c      ****  *   PD2        <- right line sensor  (internal pull-up enabled)
+  17:OARLFR.c      ****  *   PB0..PB3   -> L293D motor driver inputs
+  18:OARLFR.c      ****  *   PB4        -> buzzer
+  19:OARLFR.c      ****  */
+  20:OARLFR.c      **** 
+  21:OARLFR.c      **** #include <avr/io.h>
+  22:OARLFR.c      **** 
+  23:OARLFR.c      **** #define MOTOR_STOP      0b00000000
+  24:OARLFR.c      **** #define MOTOR_FORWARD   0b00001010
+  25:OARLFR.c      **** #define MOTOR_LEFT      0b00000110  // Spin left on the spot
+  26:OARLFR.c      **** #define MOTOR_RIGHT     0b00001001  // Spin right on the spot
+  27:OARLFR.c      **** #define BUZZER          0b00010000
+  28:OARLFR.c      **** 
+  29:OARLFR.c      **** // PIND patterns (bit 0 = left line, bit 1 = obstacle, bit 2 = right line)
+  30:OARLFR.c      **** #define LINE_CENTRED            0b11111010
+  31:OARLFR.c      **** #define LINE_UNDER_LEFT         0b11111011
+  32:OARLFR.c      **** #define LINE_UNDER_RIGHT        0b11111110
+  33:OARLFR.c      **** #define JUNCTION                0b11111111
+  34:OARLFR.c      **** #define BLOCKED_CENTRED         0b11111000
+  35:OARLFR.c      **** #define BLOCKED_UNDER_LEFT      0b11111001
+  36:OARLFR.c      **** #define BLOCKED_UNDER_RIGHT     0b11111100
+  37:OARLFR.c      **** #define BLOCKED_JUNCTION        0b11111101
+  38:OARLFR.c      **** 
+  39:OARLFR.c      **** int main(void)
+  40:OARLFR.c      **** {
+  16               		.loc 1 40 1 view -0
+  17               		.cfi_startproc
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  41:OARLFR.c      ****     DDRD  = 0b00000000;             // Port D is an input port
+  22               		.loc 1 41 5 view .LVU1
+  23               		.loc 1 41 11 is_stmt 0 view .LVU2
+  24 0000 11BA      		out 0x11,__zero_reg__
+  42:OARLFR.c      ****     PORTD = 0b11111111;             // Enable pull-ups on Port D
+  25               		.loc 1 42 5 is_stmt 1 view .LVU3
+  26               		.loc 1 42 11 is_stmt 0 view .LVU4
+  27 0002 8FEF      		ldi r24,lo8(-1)
+  28 0004 82BB      		out 0x12,r24
+  43:OARLFR.c      ****     DDRB  = 0b11111111;             // Port B is an output port
+  29               		.loc 1 43 5 is_stmt 1 view .LVU5
+  30               		.loc 1 43 11 is_stmt 0 view .LVU6
+  31 0006 87BB      		out 0x17,r24
+  44:OARLFR.c      **** 
+  45:OARLFR.c      ****     while (1)
+  46:OARLFR.c      ****     {
+  47:OARLFR.c      ****         switch (PIND)
+  48:OARLFR.c      ****         {
+  49:OARLFR.c      ****             case LINE_CENTRED:
+  50:OARLFR.c      ****                 PORTB = MOTOR_FORWARD;
+  51:OARLFR.c      ****                 break;
+  52:OARLFR.c      **** 
+  53:OARLFR.c      ****             case LINE_UNDER_LEFT:
+  54:OARLFR.c      ****                 PORTB = MOTOR_LEFT;
+  55:OARLFR.c      ****                 break;
+  56:OARLFR.c      **** 
+  57:OARLFR.c      ****             case LINE_UNDER_RIGHT:
+  58:OARLFR.c      ****                 PORTB = MOTOR_RIGHT;
+  59:OARLFR.c      ****                 break;
+  60:OARLFR.c      **** 
+  61:OARLFR.c      ****             case JUNCTION:
+  62:OARLFR.c      ****                 PORTB = MOTOR_FORWARD | BUZZER;     // Beep and cross over
+  32               		.loc 1 62 23 view .LVU7
+  33 0008 9AE1      		ldi r25,lo8(26)
+  58:OARLFR.c      ****                 break;
+  34               		.loc 1 58 23 view .LVU8
+  35 000a 29E0      		ldi r18,lo8(9)
+  50:OARLFR.c      ****                 break;
+  36               		.loc 1 50 23 view .LVU9
+  37 000c 3AE0      		ldi r19,lo8(10)
+  54:OARLFR.c      ****                 break;
+  38               		.loc 1 54 23 view .LVU10
+  39 000e 46E0      		ldi r20,lo8(6)
+  40               	.L7:
+  45:OARLFR.c      ****     {
+  41               		.loc 1 45 5 is_stmt 1 view .LVU11
+  47:OARLFR.c      ****         {
+  42               		.loc 1 47 9 view .LVU12
+  47:OARLFR.c      ****         {
+  43               		.loc 1 47 17 is_stmt 0 view .LVU13
+  44 0010 80B3      		in r24,0x10
+  47:OARLFR.c      ****         {
+  45               		.loc 1 47 9 view .LVU14
+  46 0012 8E3F      		cpi r24,lo8(-2)
+  47 0014 00F4      		brsh .L3
+  48 0016 8C3F      		cpi r24,lo8(-4)
+  49 0018 00F4      		brsh .L4
+  50 001a 8A3F      		cpi r24,lo8(-6)
+  51 001c 01F0      		breq .L5
+  52 001e 8B3F      		cpi r24,lo8(-5)
+  53 0020 01F0      		breq .L6
+  54 0022 885F      		subi r24,lo8(-(8))
+  55 0024 8230      		cpi r24,lo8(2)
+  56 0026 00F4      		brsh .L7
+  57               	.L4:
+  63:OARLFR.c      ****                 break;
+  64:OARLFR.c      **** 
+  65:OARLFR.c      ****             case BLOCKED_CENTRED:
+  66:OARLFR.c      ****             case BLOCKED_UNDER_LEFT:
+  67:OARLFR.c      ****             case BLOCKED_UNDER_RIGHT:
+  68:OARLFR.c      ****             case BLOCKED_JUNCTION:
+  69:OARLFR.c      ****                 PORTB = MOTOR_STOP;                 // Wait for a clear path
+  58               		.loc 1 69 17 is_stmt 1 view .LVU15
+  59               		.loc 1 69 23 is_stmt 0 view .LVU16
+  60 0028 18BA      		out 0x18,__zero_reg__
+  70:OARLFR.c      ****                 break;
+  61               		.loc 1 70 17 is_stmt 1 view .LVU17
+  62 002a 00C0      		rjmp .L7
+  63               	.L3:
+  47:OARLFR.c      ****         {
+  64               		.loc 1 47 9 is_stmt 0 view .LVU18
+  65 002c 8E3F      		cpi r24,lo8(-2)
+  66 002e 01F4      		brne .L12
+  58:OARLFR.c      ****                 break;
+  67               		.loc 1 58 17 is_stmt 1 view .LVU19
+  58:OARLFR.c      ****                 break;
+  68               		.loc 1 58 23 is_stmt 0 view .LVU20
+  69 0030 28BB      		out 0x18,r18
+  59:OARLFR.c      **** 
+  70               		.loc 1 59 17 is_stmt 1 view .LVU21
+  71 0032 00C0      		rjmp .L7
+  72               	.L5:
+  50:OARLFR.c      ****                 break;
+  73               		.loc 1 50 17 view .LVU22
+  50:OARLFR.c      ****                 break;
+  74               		.loc 1 50 23 is_stmt 0 view .LVU23
+  75 0034 38BB      		out 0x18,r19
+  51:OARLFR.c      **** 
+  76               		.loc 1 51 17 is_stmt 1 view .LVU24
+  77 0036 00C0      		rjmp .L7
+  78               	.L6:
+  54:OARLFR.c      ****                 break;
+  79               		.loc 1 54 17 view .LVU25
+  54:OARLFR.c      ****                 break;
+  80               		.loc 1 54 23 is_stmt 0 view .LVU26
+  81 0038 48BB      		out 0x18,r20
+  55:OARLFR.c      **** 
+  82               		.loc 1 55 17 is_stmt 1 view .LVU27
+  83 003a 00C0      		rjmp .L7
+  84               	.L12:
+  62:OARLFR.c      ****                 break;
+  85               		.loc 1 62 17 view .LVU28
+  62:OARLFR.c      ****                 break;
+  86               		.loc 1 62 23 is_stmt 0 view .LVU29
+  87 003c 98BB      		out 0x18,r25
+  63:OARLFR.c      **** 
+  88               		.loc 1 63 17 is_stmt 1 view .LVU30
+  89 003e 00C0      		rjmp .L7
+  90               		.cfi_endproc
+  91               	.LFE0:
+  93               		.text
+  94               	.Letext0:
+  95               		.file 2 "/tmp/avrtc/root/usr/lib/avr/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 OARLFR.c
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:2      *ABS*:0000003f __SREG__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:3      *ABS*:0000003e __SP_H__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:4      *ABS*:0000003d __SP_L__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:5      *ABS*:00000034 __CCP__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\Nithish\AppData\Local\Temp/cc0cLKGx.s:18     .text:00000000 main
+     /tmp/ccvfWaLK.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccvfWaLK.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccvfWaLK.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccvfWaLK.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccvfWaLK.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccvfWaLK.s:14     .text.startup:00000000 main
+     /tmp/ccvfWaLK.s:16     .text.startup:00000000 .Loc.0
+     /tmp/ccvfWaLK.s:17     .text.startup:00000000 L0
+     /tmp/ccvfWaLK.s:22     .text.startup:00000000 .Loc.1
+     /tmp/ccvfWaLK.s:23     .text.startup:00000000 .Loc.2
+     /tmp/ccvfWaLK.s:25     .text.startup:00000002 .Loc.3
+     /tmp/ccvfWaLK.s:26     .text.startup:00000002 .Loc.4
+     /tmp/ccvfWaLK.s:29     .text.startup:00000006 .Loc.5
+     /tmp/ccvfWaLK.s:30     .text.startup:00000006 .Loc.6
+     /tmp/ccvfWaLK.s:32     .text.startup:00000008 .Loc.7
+     /tmp/ccvfWaLK.s:34     .text.startup:0000000a .Loc.8
+     /tmp/ccvfWaLK.s:36     .text.startup:0000000c .Loc.9
+     /tmp/ccvfWaLK.s:38     .text.startup:0000000e .Loc.10
+     /tmp/ccvfWaLK.s:41     .text.startup:00000010 .Loc.11
+     /tmp/ccvfWaLK.s:42     .text.startup:00000010 .Loc.12
+     /tmp/ccvfWaLK.s:43     .text.startup:00000010 .Loc.13
+     /tmp/ccvfWaLK.s:45     .text.startup:00000012 .Loc.14
+     /tmp/ccvfWaLK.s:58     .text.startup:00000028 .Loc.15
+     /tmp/ccvfWaLK.s:59     .text.startup:00000028 .Loc.16
+     /tmp/ccvfWaLK.s:61     .text.startup:0000002a .Loc.17
+     /tmp/ccvfWaLK.s:64     .text.startup:0000002c .Loc.18
+     /tmp/ccvfWaLK.s:67     .text.startup:00000030 .Loc.19
+     /tmp/ccvfWaLK.s:68     .text.startup:00000030 .Loc.20
+     /tmp/ccvfWaLK.s:70     .text.startup:00000032 .Loc.21
+     /tmp/ccvfWaLK.s:73     .text.startup:00000034 .Loc.22
+     /tmp/ccvfWaLK.s:74     .text.startup:00000034 .Loc.23
+     /tmp/ccvfWaLK.s:76     .text.startup:00000036 .Loc.24
+     /tmp/ccvfWaLK.s:79     .text.startup:00000038 .Loc.25
+     /tmp/ccvfWaLK.s:80     .text.startup:00000038 .Loc.26
+     /tmp/ccvfWaLK.s:82     .text.startup:0000003a .Loc.27
+     /tmp/ccvfWaLK.s:85     .text.startup:0000003c .Loc.28
+     /tmp/ccvfWaLK.s:86     .text.startup:0000003c .Loc.29
+     /tmp/ccvfWaLK.s:88     .text.startup:0000003e .Loc.30
+     /tmp/ccvfWaLK.s:90     .text.startup:00000040 L0
+     /tmp/ccvfWaLK.s:93     .text.startup:00000040 L0
+                     .debug_frame:00000000 L0
+     /tmp/ccvfWaLK.s:63     .text.startup:0000002c .L3
+     /tmp/ccvfWaLK.s:57     .text.startup:00000028 .L4
+     /tmp/ccvfWaLK.s:72     .text.startup:00000034 .L5
+     /tmp/ccvfWaLK.s:78     .text.startup:00000038 .L6
+     /tmp/ccvfWaLK.s:40     .text.startup:00000010 .L7
+     /tmp/ccvfWaLK.s:84     .text.startup:0000003c .L12
+     /tmp/ccvfWaLK.s:166    .debug_abbrev:00000000 .Ldebug_abbrev0
+     /tmp/ccvfWaLK.s:266    .debug_ranges:00000000 .Ldebug_ranges0
+     /tmp/ccvfWaLK.s:272    .debug_line:00000000 .Ldebug_line0
+     /tmp/ccvfWaLK.s:15     .text.startup:00000000 .LFB0
+     /tmp/ccvfWaLK.s:91     .text.startup:00000040 .LFE0
+     /tmp/ccvfWaLK.s:97     .debug_info:00000000 .Ldebug_info0
 
 NO UNDEFINED SYMBOLS

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Line Followers - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Line Following Robots</h1>
+    <span class="tag">Level 1 &middot; ATmega16 &middot; Embedded C</span>
+</header>
+<p class="lede">
+    Two IR sensors straddle a black line. Each loop the firmware reads <code>PIND</code>, matches the bit
+    pattern against its cases and writes a motor pattern to <code>PORTB</code>. Pick a firmware to compare
+    the basic line follower with the obstacle-aware and competition versions.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar">
+                <label class="speed">Firmware <select id="fw"></select></label>
+            </div>
+            <canvas id="world" width="1350" height="840"></canvas>
+            <p class="hint" id="hint"></p>
+            <div class="slider" id="potRow" style="margin-top:8px">
+                <span>Cave speed pot (ADC0)</span>
+                <input type="range" id="pot" min="0" max="1023" value="600">
+                <code id="potVal"></code>
+            </div>
+        </div>
+    </div>
+    <aside>
+        <div class="panel" id="io">
+            <h2>Microcontroller I/O</h2>
+            <div id="inReg"></div>
+            <div id="outReg"></div>
+            <dl class="kv" id="pins" hidden></dl>
+            <h3>Motors</h3>
+            <div id="motors"></div>
+            <p class="hint" id="caveState"></p>
+        </div>
+        <div class="panel" id="logic"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>Each line sensor shines IR at the floor. White reflects (reads <b>0</b>), the black line absorbs it (reads <b>1</b>).</li>
+        <li>The sensors sit either side of the line, so on a straight both read 0 and the robot drives forward.</li>
+        <li>When the line curves it slides under one sensor; the robot spins towards that side until the line is centred again.</li>
+        <li>When both sensors see black the robot is on a crossing: it beeps and drives straight over it.</li>
+    </ol>
+    <h2>Firmware variants</h2>
+    <ul>
+        <li><b>LFR.c</b> &ndash; the basic two-sensor line follower.</li>
+        <li><b>OARLFR.c</b> &ndash; adds a front proximity sensor on PD1 and waits while the path is blocked.</li>
+        <li><b>ALFR.c</b> &ndash; competition robot: stops with an alarm at obstacles and runs at a potentiometer-set
+            PWM speed while its side sensor sees a cave wall.</li>
+        <li><b>ALFR(Arduino).ino</b> &ndash; the same behaviour written with the Arduino API and <code>analogWrite()</code>.</li>
+    </ul>
+    <h2>Try this</h2>
+    <ul>
+        <li>Click on the track in front of the robot to drop an obstacle (obstacle-aware firmware only). Click it again to remove it.</li>
+        <li>Drag the robot to move it, or drag the blue dot to turn it. Put it on the line at an angle and watch it recover.</li>
+        <li>With ALFR.c, move the cave pot: higher readings mean a longer PWM off-time and a slower robot in the cave.</li>
+    </ul>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/rigs.js"></script>
+<script>
+(function () {
+    const K = Kaizen, R = KaizenRigs;
+    const SOURCES = {
+        LFR: 'Level 1/Line Follower Robot/LFR.c',
+        OARLFR: 'Level 1/OAR + LFR/OARLFR.c',
+        ALFR: 'Level 1/Line Follower Competition/Advanced-Line-Following-Robot-master/ALFR.c',
+        ALFRArduino: 'Level 1/Line Follower Competition/Advanced-Line-Following-Robot-master/ALFR(Arduino).ino',
+    };
+    const TABLES = {
+        LFR: [
+            { id: 'centred', when: '11111100', meaning: 'Both sensors on white', action: 'Forward' },
+            { id: 'left', when: '11111110', meaning: 'Line under left sensor', action: 'Spin left' },
+            { id: 'right', when: '11111101', meaning: 'Line under right sensor', action: 'Spin right' },
+            { id: 'cross', when: '11111111', meaning: 'Both on black (crossing)', action: 'Forward + beep, 200 ms' },
+        ],
+        OARLFR: [
+            { id: 'centred', when: '11111010', meaning: 'Line centred, path clear', action: 'Forward' },
+            { id: 'left', when: '11111011', meaning: 'Line under left sensor', action: 'Spin left' },
+            { id: 'right', when: '11111110', meaning: 'Line under right sensor', action: 'Spin right' },
+            { id: 'cross', when: '11111111', meaning: 'Junction, path clear', action: 'Forward + beep' },
+            { id: 'blocked', when: '111111x0x', meaning: 'PD1 = 0: obstacle ahead', action: 'Stop and wait' },
+        ],
+        ALFR: [
+            { id: 'centred', when: '1111x100', meaning: 'Both sensors on white', action: 'Forward' },
+            { id: 'left', when: '1111x110', meaning: 'Line under left sensor', action: 'Spin left' },
+            { id: 'right', when: '1111x101', meaning: 'Line under right sensor', action: 'Spin right' },
+            { id: 'cross', when: '1111x111', meaning: 'Both on black (crossing)', action: 'Forward + beep' },
+            { id: 'obstacle', when: '1111x000', meaning: 'PD2 = 0: obstacle ahead', action: 'Stop, buzzer on' },
+        ],
+        ALFRArduino: [
+            { id: 'obstacle', when: 'D17 = 0', meaning: 'Obstacle ahead', action: 'Stop, buzzer on' },
+            { id: 'centred', when: 'L=0 R=0', meaning: 'Both sensors on white', action: 'Forward' },
+            { id: 'left', when: 'L=1 R=0', meaning: 'Line under left sensor', action: 'Spin left' },
+            { id: 'right', when: 'L=0 R=1', meaning: 'Line under right sensor', action: 'Spin right' },
+            { id: 'cross', when: 'L=1 R=1', meaning: 'Both on black (crossing)', action: 'Forward + beep' },
+        ],
+    };
+
+    const fwSelect = document.getElementById('fw');
+    for (const [key, fw] of Object.entries(R.LINE_FIRMWARE)) fwSelect.append(new Option(fw.label, key));
+
+    const pot = document.getElementById('pot');
+    const potVal = document.getElementById('potVal');
+    let rig, sim, inReg, outReg, table, motors;
+
+    function build(name) {
+        const fw = R.LINE_FIRMWARE[name];
+        const placed = rig ? rig.world.obstacles.filter(o => !o.wall) : [];
+        rig = R.lineFollower(name, { adc: +pot.value });
+        if (fw.obstacle) rig.world.obstacles.push(...placed);     // keep placed obstacles
+        document.getElementById('potRow').hidden = !fw.cave;
+        document.getElementById('hint').textContent = fw.obstacle
+            ? 'Click the floor to drop an obstacle, click it again to remove it. Drag the robot to move it, drag the blue dot to rotate it.'
+            : 'Drag the robot to move it, drag the blue dot to rotate it.';
+
+        const inBox = document.getElementById('inReg'), outBox = document.getElementById('outReg');
+        inBox.innerHTML = outBox.innerHTML = '';
+        const pins = document.getElementById('pins');
+        const arduino = name === 'ALFRArduino';
+        pins.hidden = !arduino;
+        inReg = outReg = null;
+        if (!arduino) {
+            inReg = K.registerView(inBox, 'PIND (inputs)', rig.io.labels, 'Unused pins are pulled up and read 1.');
+            outReg = K.registerView(outBox, 'PORTB (outputs)', K.PORTB_LABELS);
+        }
+        const logic = document.getElementById('logic');
+        logic.innerHTML = '';
+        table = K.decisionTable(logic, 'Firmware logic &ndash; ' + fw.label, TABLES[name], K.source(SOURCES[name]));
+        if (sim) { sim.world = rig.world; sim.robot = rig.robot; sim.tick = rig.tick; }
+    }
+
+    const initial = new URLSearchParams(location.search).get('fw');
+    if (R.LINE_FIRMWARE[initial]) fwSelect.value = initial;
+    build(fwSelect.value);
+    motors = K.motorView(document.getElementById('motors'));
+
+    sim = new K.Sim({
+        canvas: document.getElementById('world'),
+        world: rig.world,
+        robot: rig.robot,
+        tick: t => rig.tick(t),
+        onPointer: (type, x, y) => K.obstacleEditor(rig.world, {
+            size: 24, enabled: () => R.LINE_FIRMWARE[fwSelect.value].obstacle,
+        })(type, x, y),
+        onFrame: () => {
+            const io = rig.io, s = rig.robot.readings;
+            if (inReg) inReg.update(io.PIND());
+            if (outReg) outReg.update(rig.portb);
+            if (fwSelect.value === 'ALFRArduino') {
+                document.getElementById('pins').innerHTML =
+                    `<dt>D15 left line</dt><dd>${s.left}</dd><dt>D16 right line</dt><dd>${s.right}</dd>` +
+                    `<dt>D17 obstacle</dt><dd>${s.front ? 0 : 1}</dd><dt>D14 cave</dt><dd>${s.cave ? 0 : 1}</dd>` +
+                    `<dt>analogWrite</dt><dd>${s.cave ? 200 : 255}</dd>`;
+            }
+            motors.update(rig.robot);
+            table.highlight(rig.trace);
+            K.beeper.set(rig.robot.buzzer);
+            const fw = R.LINE_FIRMWARE[fwSelect.value];
+            document.getElementById('caveState').textContent = !fw.cave ? '' :
+                fwSelect.value === 'ALFR'
+                    ? (io.inCave ? `Inside cave: software PWM, on ${25 - Math.floor(io.adc / 40)} ms / off ${Math.floor(io.adc / 40)} ms` + (io.adc > 870 ? ' (pot above 870: full speed)' : '') : 'Outside cave: full speed')
+                    : (s.cave ? 'Inside cave: analogWrite(200)' : 'Outside cave: analogWrite(255)');
+        },
+    });
+
+    K.toolbar(document.getElementById('toolbar'), sim, { onReset: () => build(fwSelect.value) });
+    fwSelect.onchange = () => build(fwSelect.value);
+    const showPot = () => { potVal.textContent = pot.value; rig.io.adc = +pot.value; };
+    pot.oninput = showPot;
+    showPot();
+})();
+</script>
+</body>
+</html>

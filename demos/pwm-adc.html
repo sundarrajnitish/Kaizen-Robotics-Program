@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PWM &amp; ADC Speed Control - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+    .row { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: center; }
+    .scope { width: 100%; height: auto; border-radius: 8px; display: block; }
+    #led { width: 120px; height: 120px; border-radius: 50%; margin: 6px auto; border: 4px solid #7f1d1d; background: #3b0d0d; transition: background 0.03s, box-shadow 0.03s; }
+    #led.on { background: #ef4444; box-shadow: 0 0 40px 12px rgba(239,68,68,0.6); }
+    #wheel { width: 160px; height: 160px; display: block; margin: 0 auto; }
+    .meter { height: 14px; background: var(--code); border-radius: 7px; overflow: hidden; }
+    .meter i { display: block; height: 100%; background: var(--accent); width: 0; }
+</style>
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>PWM &amp; ADC Based Speed Control</h1>
+    <span class="tag">Level 1 &middot; ATmega16 &middot; Embedded C</span>
+</header>
+<p class="lede">
+    Pulse width modulation switches a pin fully on and off so fast that a motor or LED only "feels" the average.
+    The longer the ON part of each period (the duty cycle), the brighter the LED or the faster the motor.
+    The ADC lab sets the duty cycle from a potentiometer.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel">
+            <div class="toolbar" id="toolbar"></div>
+            <h2>1. Pulse width modulation &ndash; <code>PWM.c</code></h2>
+            <div class="row">
+                <div id="led"></div>
+                <canvas class="scope" id="scopeA" width="900" height="150"></canvas>
+            </div>
+            <p class="hint">PA0 alternates between a fast 50 ms / 50 ms pulse and a slow 1 s / 1 s pulse (3 s scope window).</p>
+        </div>
+        <div class="panel">
+            <h2>2. ADC based speed control &ndash; <code>SpeedCntrl.c</code></h2>
+            <div class="slider">
+                <span>Potentiometer</span>
+                <input type="range" id="pot" min="0" max="1023" value="400">
+                <code id="potVal"></code>
+            </div>
+            <div class="row" style="margin-top:12px">
+                <canvas id="wheel" width="320" height="320"></canvas>
+                <canvas class="scope" id="scopeB" width="900" height="150"></canvas>
+            </div>
+            <dl class="kv" style="margin-top:10px">
+                <dt>ADC reading</dt><dd id="adc"></dd>
+                <dt>OFF time = ADC / 40</dt><dd id="toff"></dd>
+                <dt>ON time = 25 &minus; OFF</dt><dd id="ton"></dd>
+                <dt>Duty cycle</dt><dd><div class="meter"><i id="duty"></i></div><span id="dutyTxt"></span></dd>
+                <dt>Motor speed</dt><dd id="rpm"></dd>
+            </dl>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <h2>Registers</h2>
+            <div id="regA"></div>
+            <div id="regB"></div>
+        </div>
+        <div class="panel" id="logicA"></div>
+        <div class="panel" id="logicB"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li><b>PWM.c</b> drives PA0 high, waits with <code>_delay_ms()</code>, drives it low and waits again. The two
+            timings show how the pulse width changes what you see.</li>
+        <li><b>SpeedCntrl.c</b> sets up the ADC (<code>ADEN</code>, prescaler /16, AVCC reference) and starts a conversion
+            with <code>ADSC</code>. When <code>ADIF</code> is set the 10-bit result (0&ndash;1023) is in <code>ADC</code>.</li>
+        <li>The reading sets the OFF time of a 25 ms software PWM period: <code>t_off = reading / 40</code>,
+            <code>t_on = 25 - t_off</code>. A higher reading means a longer OFF time and a slower motor.</li>
+        <li>At 870 and above the motors are switched off completely.</li>
+        <li>Because <code>_delay_ms()</code> needs a constant, the cleaned-up code waits 1 ms at a time in a loop.</li>
+    </ol>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script>
+(function () {
+    const K = Kaizen, F = KaizenFirmware;
+    const regA = K.registerView(document.getElementById('regA'), 'PORTA (PWM.c)', { 0: 'PA0 LED' });
+    const regB = K.registerView(document.getElementById('regB'), 'PORTB (SpeedCntrl.c)', { 1: 'PB1 right motor fwd', 3: 'PB3 left motor fwd' });
+    const tableA = K.decisionTable(document.getElementById('logicA'), 'PWM.c main loop', [
+        { id: 'short', when: '50 / 50 ms', meaning: 'Short pulse', action: 'PA0 on 50 ms, off 50 ms' },
+        { id: 'long', when: '1 s / 1 s', meaning: 'Long pulse', action: 'PA0 on 1 s, off 1 s' },
+    ], K.source('Level 1/PWM/PWM.c'));
+    const tableB = K.decisionTable(document.getElementById('logicB'), 'SpeedCntrl.c main loop', [
+        { id: 'pwm', when: 'ADC &lt; 870', meaning: 'Run', action: 'Forward for t_on, stop for t_off' },
+        { id: 'stop', when: 'ADC &ge; 870', meaning: 'Pot turned up fully', action: 'Motors off' },
+    ], K.source('Level 1/ADC Based Speed Control/SpeedCntrl.c'));
+
+    const pot = document.getElementById('pot');
+    const ioA = { porta: 0, trace: null }, ioB = { portb: 0, trace: null };
+    ioA.PORTA = v => { ioA.porta = v; };
+    ioA.trace = id => { ioA.traceId = id; };
+    ioB.PORTB = v => { ioB.portb = v; };
+    ioB.readADC = () => +pot.value;
+    ioB.trace = id => { ioB.traceId = id; };
+    let fwA, fwB;
+    const restart = () => { fwA = new K.Firmware(F.PWM, ioA); fwB = new K.Firmware(F.SpeedCntrl, ioB); };
+    restart();
+
+    const scopeA = K.scope(document.getElementById('scopeA'), [{ name: 'PA0', color: '#f87171' }], 3000);
+    const scopeB = K.scope(document.getElementById('scopeB'), [{ name: 'PB3/PB1 motor', color: '#4ade80' }], 150);
+    const motor = { speed: 0, angle: 0 };
+    const sim = { t: 0, speed: 1, running: true };
+
+    const wheel = document.getElementById('wheel'), wctx = wheel.getContext('2d');
+    function drawWheel() {
+        const c = wheel.width / 2;
+        wctx.clearRect(0, 0, wheel.width, wheel.height);
+        wctx.save();
+        wctx.translate(c, c);
+        wctx.rotate(motor.angle);
+        wctx.fillStyle = '#1f2937';
+        wctx.beginPath(); wctx.arc(0, 0, c - 10, 0, Math.PI * 2); wctx.fill();
+        wctx.fillStyle = '#facc15';
+        wctx.beginPath(); wctx.arc(0, 0, c - 50, 0, Math.PI * 2); wctx.fill();
+        wctx.strokeStyle = '#1f2937'; wctx.lineWidth = 12;
+        for (let i = 0; i < 5; i++) {
+            wctx.rotate(Math.PI * 2 / 5);
+            wctx.beginPath(); wctx.moveTo(0, 0); wctx.lineTo(c - 52, 0); wctx.stroke();
+        }
+        wctx.fillStyle = '#9ca3af';
+        wctx.beginPath(); wctx.arc(0, 0, 16, 0, Math.PI * 2); wctx.fill();
+        wctx.restore();
+    }
+
+    let last = null;
+    function frame(now) {
+        if (last === null) last = now;
+        const dt = Math.min(50, now - last);
+        last = now;
+        if (sim.running) {
+            const ticks = Math.round(dt * sim.speed);
+            for (let i = 0; i < ticks; i++) {
+                sim.t++;
+                fwA.step(sim.t);
+                fwB.step(sim.t);
+                const on = (ioB.portb & 0b1010) ? 1 : 0;
+                motor.speed += (on - motor.speed) * (1 - Math.exp(-0.001 / 0.12));    // motor inertia
+                motor.angle += motor.speed * 0.012;
+                scopeA.push(sim.t, [ioA.porta & 1]);
+                scopeB.push(sim.t, [on]);
+            }
+        }
+        scopeA.draw(sim.t);
+        scopeB.draw(sim.t);
+        drawWheel();
+        document.getElementById('led').classList.toggle('on', !!(ioA.porta & 1));
+        regA.update(ioA.porta);
+        regB.update(ioB.portb);
+        tableA.highlight(ioA.traceId);
+        tableB.highlight(ioB.traceId);
+        const r = +pot.value, toff = Math.floor(r / 40), ton = 25 - toff, run = r < 870;
+        document.getElementById('potVal').textContent = r;
+        document.getElementById('adc').textContent = r;
+        document.getElementById('toff').textContent = toff + ' ms';
+        document.getElementById('ton').textContent = ton + ' ms';
+        const duty = run ? ton / 25 : 0;
+        document.getElementById('duty').style.width = duty * 100 + '%';
+        document.getElementById('dutyTxt').textContent = run ? Math.round(duty * 100) + '%' : '0% (stopped, reading >= 870)';
+        document.getElementById('rpm').textContent = Math.round(motor.speed * 200) + ' RPM (200 RPM motor)';
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: restart });
+})();
+</script>
+</body>
+</html>

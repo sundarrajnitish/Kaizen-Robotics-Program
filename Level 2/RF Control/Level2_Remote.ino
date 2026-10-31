@@ -1,52 +1,53 @@
-const int xpin=A0;
-const int ypin=A1;
-int a,b;
+/*
+ * Project : RF Remote (accelerometer transmitter)
+ * Level   : Kaizen Robotics Program - Level 2
+ * Board   : ATmega16 (Arduino core)
+ *
+ * Reads the X/Y axes of a MEMS accelerometer and transmits one drive
+ * command per loop over the RF serial link:
+ *
+ *   's' stop   'f' forward   'R' reverse   'l' left   'r' right
+ *
+ * The tilt windows overlap; when several match, the later check wins,
+ * exactly as the receiver would see when the characters arrive in order.
+ * The resting X/Y values are printed once at start-up for calibration.
+ *
+ * Wiring:
+ *   A0 <- accelerometer X axis
+ *   A1 <- accelerometer Y axis
+ *   TX -> RF transmitter module (9600 baud)
+ */
 
-int rm1=0;
-int rm2=1;
-int lm1=24;
-int lm2=25;
+const int X_PIN = A0;
+const int Y_PIN = A1;
 
-void setup() {
-  Serial.begin(9600);
-  a=analogRead(xpin);
-  Serial.print(a);
-  Serial.print('\t');
-  b=analogRead(ypin);
-  Serial.println(b);
-
-  pinMode(rm1,INPUT);
-  pinMode(rm2,INPUT);
-  pinMode(lm1,INPUT);
-  pinMode(lm2,INPUT);
-}
-
-void loop() {
- int x=analogRead(xpin);
- int y=analogRead(ypin);
-
- if (((x<=(426))&&(x>=(366))) && ((y<=(436)) && (y>=(376))))
+void print_calibration()
 {
-  Serial.print('s');
+    Serial.print(analogRead(X_PIN));
+    Serial.print('\t');
+    Serial.println(analogRead(Y_PIN));
 }
- if ((y<=(388)) && (y>=(380)))
 
+void setup()
 {
-  Serial.print('f');
+    Serial.begin(9600);
+    print_calibration();
 }
- if ((y<=(475)) && (y>=(415)))
 
+void loop()
 {
-  Serial.print('R');
-}
- if ((x<=(458)) && (x>=(398)))
+    int x = analogRead(X_PIN);
+    int y = analogRead(Y_PIN);
+    char command = 0;
 
-{
-  Serial.print('l');
-}
- if ((x<=(365)) && (x>=(305)))
+    if (x >= 366 && x <= 426 && y >= 376 && y <= 436) command = 's';   // Level
+    if (y >= 380 && y <= 388)                         command = 'f';   // Tilt forward
+    if (y >= 415 && y <= 475)                         command = 'R';   // Tilt back
+    if (x >= 398 && x <= 458)                         command = 'l';   // Tilt left
+    if (x >= 305 && x <= 365)                         command = 'r';   // Tilt right
 
-{
-  Serial.print('r');
-}
+    if (command)
+    {
+        Serial.print(command);
+    }
 }

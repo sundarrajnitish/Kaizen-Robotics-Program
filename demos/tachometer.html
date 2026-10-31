@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tachometer - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+    .rig { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: center; }
+    @media (max-width: 800px) { .rig { grid-template-columns: 1fr; } }
+    #disc { width: 100%; max-width: 360px; height: auto; }
+    .scope { width: 100%; height: auto; border-radius: 8px; display: block; margin-top: 12px; }
+    #start { font-size: 16px; padding: 10px 18px; }
+</style>
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Tachometer</h1>
+    <span class="tag">Level 2 &middot; Arduino &middot; IR sensor &middot; 16x2 LCD</span>
+</header>
+<p class="lede">
+    An IR sensor faces a rotating shaft that carries one reflective marker. Every time the marker passes, the
+    sensor output goes high. The sketch counts these pulses for a fixed time window and converts the count to RPM.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel">
+            <div class="toolbar" id="toolbar"></div>
+            <div class="rig">
+                <canvas id="disc" width="720" height="720"></canvas>
+                <div>
+                    <div class="slider">
+                        <span>Shaft speed</span>
+                        <input type="range" id="rpm" min="0" max="3000" step="10" value="750">
+                        <code id="rpmVal"></code>
+                    </div>
+                    <h3>LCD</h3>
+                    <div id="lcd"></div>
+                    <p><button class="btn primary" id="start">Press START button (D10)</button></p>
+                    <dl class="kv">
+                        <dt>Pulses counted</dt><dd id="pulses">0</dd>
+                        <dt>Window left</dt><dd id="left">&ndash;</dd>
+                        <dt>Last result</dt><dd id="result">&ndash;</dd>
+                    </dl>
+                </div>
+            </div>
+            <canvas class="scope" id="scope" width="1200" height="120"></canvas>
+            <p class="hint">Scope: sensor output on D18 (high while the marker is in front of the sensor). Tip: use Speed 4&times; to skip through the 15 s window.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel" id="logic"></div>
+        <div class="panel">
+            <h2>The maths</h2>
+            <p>The sketch computes <code>RPM = pulses * 12 / 3</code>, which is <code>pulses &times; 4</code>.
+                With one marker per revolution that means the counting window is 60 s / 4 = <b>15 s</b>, and the
+                result can only change in steps of 4 RPM.</p>
+        </div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>The LCD asks you to press the button on D10 (it uses the internal pull-up, so a press reads 0).</li>
+        <li><code>count_pulses()</code> loops 1000 &times; 1227 times. Each time it sees D18 go high it adds one and waits for the marker to pass.</li>
+        <li>After the window it shows "Please Wait", then the RPM for 5 seconds, then asks again.</li>
+    </ol>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script>
+(function () {
+    const K = Kaizen, F = KaizenFirmware;
+    const lcd = K.lcd(document.getElementById('lcd'));
+    const table = K.decisionTable(document.getElementById('logic'), 'Sketch flow', [
+        { id: 'prompt', when: 'loop()', meaning: 'Wait for the button', action: '"Please Press / Button to Start"' },
+        { id: 'count', when: 'count_pulses()', meaning: 'Count markers for 15 s', action: '"Reading RPM....."' },
+        { id: 'wait', when: 'delay(2000)', meaning: 'RPM = pulses * 12 / 3', action: '"Please Wait....."' },
+        { id: 'show', when: 'delay(5000)', meaning: 'Show the result', action: '"RPM=..."' },
+    ], K.source('Level 2/Assignments/Tachometer_Assignment/Tachometer_Assignment.ino'));
+
+    const rpmIn = document.getElementById('rpm');
+    const shaft = { revs: 0 };
+    let pressedAt = -1e9;
+    const io = {
+        lcd,
+        startPressed: () => sim.t - pressedAt < 200,
+        revolutions: () => shaft.revs,
+        trace: id => { io.traceId = id; },
+    };
+    let fw;
+    const restart = () => { fw = new K.Firmware(F.Tachometer, io); io.pulses = 0; io.windowLeft = null; };
+    const sim = { t: 0, speed: 1, running: true };
+    restart();
+    document.getElementById('start').onclick = () => { pressedAt = sim.t; };
+
+    const MARKER = 25 / 360;        // marker width as a fraction of a turn
+    const sensorOn = () => (shaft.revs % 1) < MARKER;
+    const scope = K.scope(document.getElementById('scope'), [{ name: 'D18', color: '#fbbf24' }], 1000);
+    const disc = document.getElementById('disc'), dctx = disc.getContext('2d');
+
+    function drawDisc() {
+        const c = disc.width / 2, R = c - 60;
+        dctx.clearRect(0, 0, disc.width, disc.height);
+        dctx.save();
+        dctx.translate(c, c);
+        // sensor at the top
+        dctx.fillStyle = sensorOn() ? '#ef4444' : '#374151';
+        dctx.fillRect(-26, -c + 6, 52, 34);
+        dctx.fillStyle = '#9ca3af';
+        dctx.font = '20px system-ui, sans-serif';
+        dctx.textAlign = 'center';
+        dctx.fillText('IR', 0, -c + 30);
+        dctx.rotate(shaft.revs * Math.PI * 2 - Math.PI / 2);
+        dctx.fillStyle = '#1f2937';
+        dctx.beginPath(); dctx.arc(0, 0, R, 0, Math.PI * 2); dctx.fill();
+        dctx.fillStyle = '#f8fafc';
+        dctx.beginPath(); dctx.moveTo(0, 0); dctx.arc(0, 0, R, -MARKER * Math.PI * 2, 0); dctx.closePath(); dctx.fill();
+        dctx.fillStyle = '#6b7280';
+        dctx.beginPath(); dctx.arc(0, 0, 30, 0, Math.PI * 2); dctx.fill();
+        dctx.restore();
+    }
+
+    let last = null;
+    function frame(now) {
+        if (last === null) last = now;
+        const dt = Math.min(50, now - last);
+        last = now;
+        if (sim.running) {
+            const ticks = Math.round(dt * sim.speed);
+            for (let i = 0; i < ticks; i++) {
+                sim.t++;
+                shaft.revs += +rpmIn.value / 60000;
+                fw.step(sim.t);
+                scope.push(sim.t, [sensorOn() ? 1 : 0]);
+            }
+        }
+        drawDisc();
+        scope.draw(sim.t);
+        table.highlight(io.traceId);
+        document.getElementById('rpmVal').textContent = rpmIn.value + ' RPM';
+        document.getElementById('pulses').textContent = io.pulses || 0;
+        document.getElementById('left').textContent = io.traceId === 'count' ? (io.windowLeft / 1000).toFixed(1) + ' s' : '–';
+        document.getElementById('result').textContent = io.lastRpm === undefined ? '–' : io.lastRpm + ' RPM';
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: restart });
+})();
+</script>
+</body>
+</html>

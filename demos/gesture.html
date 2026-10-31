@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gesture &amp; Wireless Control - Kaizen Robotics live demo</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+    #pad { width: 100%; max-width: 340px; height: auto; border-radius: 8px; border: 1px solid var(--line); touch-action: none; cursor: grab; }
+    .switch { display: grid; grid-template-columns: 110px repeat(3, 1fr); gap: 4px; align-items: center; margin: 4px 0; font-size: 13px; }
+    .switch .btn { padding: 4px 0; font-size: 13px; }
+    .switch .btn.active { background: var(--accent); color: var(--accent-ink); outline: none; }
+    .link { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); }
+    .big-cmd { font: 700 34px/1 ui-monospace, monospace; min-width: 44px; text-align: center; padding: 6px; border-radius: 8px; background: var(--code); }
+</style>
+</head>
+<body>
+<header class="top">
+    <a class="crumb" href="index.html">&larr; All demos</a>
+    <h1>Gesture &amp; Wireless Remote Control</h1>
+    <span class="tag">Level 2 &middot; Arduino &middot; MEMS accelerometer</span>
+</header>
+<p class="lede">
+    Two microcontrollers work together. The <b>remote</b> reads a MEMS accelerometer (or switches) and sends
+    one-letter commands over a wireless serial link. The <b>robot</b> receives each letter and drives its motors.
+    Drag the dot on the tilt pad to tilt the virtual accelerometer.
+</p>
+
+<main class="demo">
+    <div>
+        <div class="panel stage">
+            <div class="toolbar" id="toolbar">
+                <label class="speed">Remote <select id="remote"></select></label>
+            </div>
+            <canvas id="world" width="1350" height="840"></canvas>
+            <p class="hint" id="hint">Drag the robot to move it, drag the blue dot to rotate it.</p>
+        </div>
+    </div>
+    <aside>
+        <div class="panel">
+            <h2>Remote (transmitter)</h2>
+            <div id="tiltBox">
+                <canvas id="pad" width="340" height="340"></canvas>
+                <dl class="kv" style="margin-top:6px">
+                    <dt>analogRead(A0) x</dt><dd id="ax"></dd>
+                    <dt>analogRead(A1) y</dt><dd id="ay"></dd>
+                </dl>
+                <p class="hint">Coloured bands are the tilt windows from the sketch. Where they overlap, the later
+                    <code>if</code> in the code wins. <button class="btn" id="level">Hold level</button></p>
+            </div>
+            <div id="switches"></div>
+            <h3>Wireless link</h3>
+            <div class="link"><span>Last sent</span><span class="big-cmd" id="cmd">&ndash;</span><span id="linkInfo"></span></div>
+            <div class="serial-log" id="log" style="margin-top:6px"></div>
+        </div>
+        <div class="panel">
+            <h2>Robot (receiver)</h2>
+            <div id="motors"></div>
+            <div id="armBox"></div>
+        </div>
+        <div class="panel" id="logic"></div>
+    </aside>
+</main>
+
+<section class="explain">
+    <h2>How it works</h2>
+    <ol>
+        <li>The accelerometer outputs a voltage per axis that changes as it tilts. <code>analogRead()</code> turns
+            it into a number from 0 to 1023; level is about 400 on each axis.</li>
+        <li>The remote checks the reading against a window for each command (for example <code>y</code> between 415 and 475
+            means "reverse") and sends that letter with <code>Serial.print()</code> at 9600 baud.</li>
+        <li>The receiver waits for <code>Serial.available()</code>, reads the letter and sets the motor driver pins.</li>
+        <li>The pick and place version adds two DPDT switches on the remote. They drive the lift motor
+            (<code>z</code>/<code>y</code>) and the gripper motor (<code>x</code>/<code>w</code>) on the robot's arm.</li>
+    </ol>
+    <h2>Try this</h2>
+    <ul>
+        <li>With <b>Level2_Remote.ino</b>, try to find the forward window: it is only 8 ADC counts tall
+            (<code>380&ndash;388</code>), so the remote has to be held very precisely. This is why the window values were re-calibrated
+            for the gesture bot remote.</li>
+        <li>With the pick and place remote, drive to the orange block, lower the lift, close the gripper, carry the
+            block to the drop zone and open the gripper.</li>
+    </ul>
+</section>
+
+<script src="assets/kaizen.js"></script>
+<script src="assets/firmware.js"></script>
+<script src="assets/rigs.js"></script>
+<script>
+(function () {
+    const K = Kaizen, R = KaizenRigs;
+    const SOURCES = {
+        RFRemote: 'Level 2/RF Control/Level2_Remote.ino',
+        GestureRemote: 'Level 2/Gesture Bot/Level2_Remote2/Level2_Remote2.ino',
+        ArmRemote: 'Level 2/Assignments/Assignment_Arm_Remote/Assignment_Arm_Remote.ino',
+        DPDTRemote: 'Level 2/Assignments/Assignment_DPDT_Wireless/Assignment_DPDT_Wireless.ino',
+        receiver: 'Level 2/Assignments/Assignment_Gesture2/Assignment_Gesture2.ino',
+    };
+    const COLORS = { s: '#64748b', f: '#16a34a', R: '#dc2626', o: '#dc2626', l: '#2563eb', r: '#9333ea' };
+    const NAMES = { s: 'stop', f: 'forward', R: 'reverse', o: 'reverse', l: 'left', r: 'right', z: 'lift up', y: 'lift down', x: 'gripper open', w: 'gripper close' };
+    const RX_TABLE = [
+        { id: 'f', when: "'f'", meaning: 'Forward', action: 'drive(1,0,1,0)' },
+        { id: 's', when: "'s'", meaning: 'Stop', action: 'drive(0,0,0,0)' },
+        { id: 'R', when: "'R'", meaning: 'Reverse', action: 'drive(0,1,0,1)' },
+        { id: 'l', when: "'l'", meaning: 'Left', action: 'drive(0,1,1,0)' },
+        { id: 'r', when: "'r'", meaning: 'Right', action: 'drive(1,0,0,1)' },
+        { id: 'z', when: "'z' / 'y'", meaning: 'Arm motor 1 (lift)', action: 'up / down' },
+        { id: 'x', when: "'x' / 'w'", meaning: 'Arm motor 2 (gripper)', action: 'open / close' },
+    ];
+    const RX2_TABLE = RX_TABLE.slice(0, 5).map(r => (r.id === 'R' ? { ...r, id: 'o', when: "'o'" } : r));
+
+    const sel = document.getElementById('remote');
+    for (const [key, rm] of Object.entries(R.REMOTES)) sel.append(new Option(rm.label, key));
+    const pad = document.getElementById('pad');
+    const pctx = pad.getContext('2d');
+    const LO = 280, HI = 540;
+    let rig, table, block, sim = null;
+
+    const toPad = v => (v - LO) / (HI - LO) * pad.width;
+    const fromPad = p => LO + p / pad.width * (HI - LO);
+
+    function switchRow(box, name, label, opts) {
+        const row = K.el('div', 'switch', `<span>${label}</span>`);
+        for (const [val, text] of opts) {
+            const b = K.el('button', 'btn' + (val === 0 ? ' active' : ''), text);
+            b.onclick = () => {
+                rig.remoteIo.switches[name] = val;
+                row.querySelectorAll('.btn').forEach(x => x.classList.toggle('active', x === b));
+            };
+            row.append(b);
+        }
+        box.append(row);
+    }
+
+    function build(name) {
+        rig = R.gesture(name);
+        const rm = rig.rm;
+        block = { x: 520, y: 400, r: 11, carried: false };
+        document.getElementById('tiltBox').hidden = !rm.tilt;
+        const sw = document.getElementById('switches');
+        sw.innerHTML = '';
+        if (name === 'DPDTRemote') {
+            switchRow(sw, 'drive', 'Drive switch', [[1, 'forward'], [0, 'off'], [-1, 'reverse']]);
+            switchRow(sw, 'steer', 'Steer switch', [[-1, 'left'], [0, 'off'], [1, 'right']]);
+        }
+        if (rm.arm) {
+            switchRow(sw, 'arm1', 'Arm 1 (lift)', [[1, 'up (z)'], [0, 'off'], [-1, 'down (y)']]);
+            switchRow(sw, 'arm2', 'Arm 2 (gripper)', [[1, 'open (x)'], [0, 'off'], [-1, 'close (w)']]);
+        }
+        const logic = document.getElementById('logic');
+        logic.innerHTML = '';
+        const rows = name === 'GestureRemote' ? RX2_TABLE : rm.arm ? RX_TABLE : RX_TABLE.slice(0, 5);
+        table = K.decisionTable(logic, 'Receiver logic &ndash; ' + rm.receiverLabel, rows,
+            name === 'GestureRemote' ? null : K.source(SOURCES.receiver));
+        logic.append(K.el('p', 'hint', `Transmitter: <a href="${K.source(SOURCES[name])}" target="_blank" rel="noopener">${rm.label}</a>`));
+        document.getElementById('armBox').innerHTML = rm.arm ? '<h3>Arm</h3><dl class="kv" id="armKv"></dl>' : '';
+        if (sim) { sim.world = rig.world; sim.robot = rig.robot; }
+    }
+
+    function drawPad() {
+        const rm = rig.rm, w = rm.program.windows, W = pad.width;
+        pctx.clearRect(0, 0, W, W);
+        pctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--code');
+        pctx.fillRect(0, 0, W, W);
+        for (const win of w) {
+            const x0 = win.x ? toPad(win.x[0]) : 0, x1 = win.x ? toPad(win.x[1]) : W;
+            const y0 = win.y ? toPad(win.y[0]) : 0, y1 = win.y ? toPad(win.y[1]) : W;
+            pctx.fillStyle = COLORS[win.c] + '33';
+            pctx.strokeStyle = COLORS[win.c];
+            pctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+            pctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+            pctx.fillStyle = COLORS[win.c];
+            pctx.font = 'bold 13px ui-monospace, monospace';
+            pctx.fillText(`'${win.c}'`, x0 + 4, y0 + 14);
+        }
+        pctx.fillStyle = '#94a3b8';
+        pctx.font = '11px system-ui, sans-serif';
+        for (let v = 300; v <= 520; v += 50) {
+            pctx.fillText(v, toPad(v) - 8, W - 4);
+            pctx.fillText(v, 2, toPad(v) + 4);
+        }
+        const t = rig.remoteIo.tilt;
+        pctx.fillStyle = '#111';
+        pctx.strokeStyle = '#fff';
+        pctx.lineWidth = 2;
+        pctx.beginPath(); pctx.arc(toPad(t.x), toPad(t.y), 8, 0, Math.PI * 2); pctx.fill(); pctx.stroke();
+    }
+
+    let padDrag = false;
+    const padMove = ev => {
+        const r = pad.getBoundingClientRect();
+        const px = (ev.clientX - r.left) / r.width * pad.width, py = (ev.clientY - r.top) / r.height * pad.height;
+        rig.remoteIo.tilt = { x: Math.max(LO, Math.min(HI, fromPad(px))), y: Math.max(LO, Math.min(HI, fromPad(py))) };
+    };
+    pad.addEventListener('pointerdown', ev => { padDrag = true; pad.setPointerCapture(ev.pointerId); padMove(ev); });
+    pad.addEventListener('pointermove', ev => padDrag && padMove(ev));
+    pad.addEventListener('pointerup', () => { padDrag = false; });
+    document.getElementById('level').onclick = () => { rig.remoteIo.tilt = { ...rig.rm.program.rest }; };
+
+    // Pick and place: block follows the gripper while it is closed around it
+    function updateBlock() {
+        const rb = rig.robot, a = rig.io.jointAngle;
+        const [fx, fy] = rb.toWorld(40, 0);
+        if (!block.carried && a.arm1 < 0.3 && a.arm2 < 0.3 && Math.hypot(fx - block.x, fy - block.y) < 18) block.carried = true;
+        if (block.carried && a.arm2 > 0.5) block.carried = false;
+        if (block.carried) { block.x = fx; block.y = fy; }
+    }
+
+    const initial = new URLSearchParams(location.search).get('fw');
+    if (R.REMOTES[initial]) sel.value = initial;
+    build(sel.value);
+    const motors = K.motorView(document.getElementById('motors'));
+    sim = new K.Sim({
+        canvas: document.getElementById('world'),
+        world: rig.world,
+        robot: rig.robot,
+        tick: t => { rig.tick(t); if (rig.rm.arm) updateBlock(); },
+        draw: ctx => {
+            if (!rig.rm.arm) return;
+            const rb = rig.robot, a = rig.io.jointAngle;
+            ctx.save();
+            // arm reaching forward from the robot
+            const [ax, ay] = rb.toWorld(18, 0), [fx, fy] = rb.toWorld(40, 0);
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(fx, fy); ctx.stroke();
+            const open = 4 + a.arm2 * 10;
+            for (const side of [-1, 1]) {
+                const [gx, gy] = rb.toWorld(40, side * open), [hx, hy] = rb.toWorld(52, side * open);
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(hx, hy); ctx.stroke();
+            }
+            const lift = block.carried ? 1 + a.arm1 * 0.5 : 1;
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            ctx.beginPath(); ctx.arc(block.x + 3 * lift, block.y + 3 * lift, block.r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ea580c'; ctx.strokeStyle = '#9a3412'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(block.x, block.y, block.r * lift, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        },
+        onFrame: () => {
+            const rm = rig.rm, t = rig.remoteIo.tilt;
+            if (rm.tilt) {
+                drawPad();
+                document.getElementById('ax').textContent = Math.round(t.x);
+                document.getElementById('ay').textContent = Math.round(t.y);
+            }
+            const log = rig.link.log;
+            const last = log[log.length - 1];
+            document.getElementById('cmd').textContent = last || '–';
+            document.getElementById('cmd').title = NAMES[last] || '';
+            document.getElementById('log').textContent = log.slice(-36).join('');
+            document.getElementById('linkInfo').textContent = last ? '= ' + (NAMES[last] || '?') : 'nothing sent';
+            motors.update(rig.robot);
+            table.highlight(rig.trace === 'y' ? 'z' : rig.trace === 'w' ? 'x' : rig.trace);
+            const kv = document.getElementById('armKv');
+            if (kv) {
+                const a = rig.io.jointAngle;
+                kv.innerHTML = `<dt>Lift</dt><dd>${Math.round(a.arm1 * 100)}%</dd><dt>Gripper opening</dt><dd>${Math.round(a.arm2 * 100)}%</dd>` +
+                    `<dt>Block</dt><dd>${block.carried ? 'held' : 'on the floor'}</dd>`;
+            }
+        },
+    });
+    K.toolbar(document.getElementById('toolbar'), sim, { sound: false, onReset: () => build(sel.value) });
+    sel.onchange = () => build(sel.value);
+})();
+</script>
+</body>
+</html>

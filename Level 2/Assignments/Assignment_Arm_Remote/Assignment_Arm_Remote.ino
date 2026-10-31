@@ -1,72 +1,82 @@
-const int xpin=A0;
-const int ypin=A1;
-int a,b;
+/*
+ * Project : Pick and Place Remote (accelerometer + arm switches)
+ * Level   : Kaizen Robotics Program - Level 2 (assignment)
+ * Board   : ATmega16 (Arduino core)
+ *
+ * Gesture remote for the pick and place robot. The accelerometer steers
+ * the chassis and two DPDT switches move the two arm motors. Each loop
+ * transmits at most one drive command and one command per arm motor:
+ *
+ *   Drive : 's' stop   'f' forward   'R' reverse   'l' left   'r' right
+ *   Arm 1 : 'z' forward   'y' reverse
+ *   Arm 2 : 'x' forward   'w' reverse
+ *
+ * Wiring:
+ *   A0     <- accelerometer X axis
+ *   A1     <- accelerometer Y axis
+ *   D2, D3 <- arm 1 DPDT switch
+ *   D0, D1 <- arm 2 DPDT switch
+ *   TX     -> wireless transmitter module (9600 baud)
+ */
 
-int rm1=0;
-int rm2=1;
-int lm1=2;
-int lm2=3;
+const int X_PIN = A0;
+const int Y_PIN = A1;
 
-void setup() {
-  Serial.begin(9600);
-  a=analogRead(xpin);
-  Serial.print(a);
-  Serial.print('\t');
-  b=analogRead(ypin);
-  Serial.println(b);
+const int ARM1_A = 2;
+const int ARM1_B = 3;
+const int ARM2_A = 0;
+const int ARM2_B = 1;
 
-  pinMode(rm1,INPUT);
-  pinMode(rm2,INPUT);
-  pinMode(lm1,INPUT);
-  pinMode(lm2,INPUT);
-}
-
-void loop() {
- int x=analogRead(xpin);
- int y=analogRead(ypin);
-
- if (((x<=(426))&&(x>=(366))) && ((y<=(436)) && (y>=(376))))
+void print_calibration()
 {
-  Serial.println('s');
+    Serial.print(analogRead(X_PIN));
+    Serial.print('\t');
+    Serial.println(analogRead(Y_PIN));
 }
- if ((y<=(388)) && (y>=(380)))
 
+// Returns `forward`/`reverse` for a DPDT switch position, or 0 when centred
+char switch_command(int pin_a, int pin_b, char forward, char reverse)
 {
-  Serial.println('f');
-}
- if ((y<=(475)) && (y>=(415)))
+    int a = digitalRead(pin_a);
+    int b = digitalRead(pin_b);
 
-{
-  Serial.println('R');
+    if (a == 1 && b == 0) return forward;
+    if (a == 0 && b == 1) return reverse;
+    return 0;
 }
- if ((x<=(458)) && (x>=(398)))
 
+void send(char command)
 {
-  Serial.println('l');
+    if (command)
+    {
+        Serial.println(command);
+    }
 }
- if ((x<=(365)) && (x>=(305)))
 
+void setup()
 {
-  Serial.println('r');
-}
- if ((digitalRead(lm1)==1) && (digitalRead(lm2)==0))
+    Serial.begin(9600);
+    print_calibration();
 
-{
-  Serial.println('z');
+    pinMode(ARM1_A, INPUT);
+    pinMode(ARM1_B, INPUT);
+    pinMode(ARM2_A, INPUT);
+    pinMode(ARM2_B, INPUT);
 }
- if ((digitalRead(lm1)==0) && (digitalRead(lm2)==1))
 
+void loop()
 {
-  Serial.println('y');
-}
- if ((digitalRead(rm1)==1) && (digitalRead(rm2)==0))
+    int x = analogRead(X_PIN);
+    int y = analogRead(Y_PIN);
+    char drive = 0;
 
-{
-  Serial.println('x');
-}
- if ((digitalRead(rm1)==0) && (digitalRead(rm2)==1))
+    if (x >= 366 && x <= 426 && y >= 376 && y <= 436) drive = 's';     // Level
+    if (y >= 380 && y <= 388)                         drive = 'f';     // Tilt forward
+    if (y >= 415 && y <= 475)                         drive = 'R';     // Tilt back
+    if (x >= 398 && x <= 458)                         drive = 'l';     // Tilt left
+    if (x >= 305 && x <= 365)                         drive = 'r';     // Tilt right
 
-{
-  Serial.println('w');
-}
+    send(drive);
+    send(switch_command(ARM1_A, ARM1_B, 'z', 'y'));
+    send(switch_command(ARM2_A, ARM2_B, 'x', 'w'));
 }

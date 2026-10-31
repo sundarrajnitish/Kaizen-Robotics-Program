@@ -3,26 +3,30 @@ OAR.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000172  00000000  00000000  00000054  2**1
+  0 .text         00000116  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  000001c6  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  000001e6  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   000003af  00000000  00000000  00000201  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000f5  00000000  00000000  000005b0  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   00000314  00000000  00000000  000006a5  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  000009bc  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000da  00000000  00000000  000009dc  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    000003d8  00000000  00000000  00000ab6  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  9 .debug_ranges 00000048  00000000  00000000  00000e8e  2**0
-                  CONTENTS, READONLY, DEBUGGING
+  1 .data         00000000  00800060  00000116  0000018a  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000012  00000000  00000000  0000018a  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000019c  2**2
+                  CONTENTS, READONLY, OCTETS
+  4 .debug_aranges 00000020  00000000  00000000  000001d8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  5 .debug_info   000007b8  00000000  00000000  000001f8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  6 .debug_abbrev 00000617  00000000  00000000  000009b0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  7 .debug_line   00000363  00000000  00000000  00000fc7  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  8 .debug_frame  00000024  00000000  00000000  0000132c  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_str    0000034c  00000000  00000000  00001350  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_loc    00000164  00000000  00000000  0000169c  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_ranges 00000050  00000000  00000000  00001800  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
 
@@ -57,319 +61,211 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 b7 00 	jmp	0x16e	; 0x16e <_exit>
+  64:	0c 94 7e 00 	jmp	0xfc	; 0xfc <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
-#include<avr/io.h>
-#include<util/delay.h>
-void main()
+    _delay_ms(TURN_MS);
+}
+
+int main(void)
 {
-DDRD=0b00000000; //Setting part D as an input part
+    DDRD  = 0b00000000;             // Port D is an input port
   6c:	11 ba       	out	0x11, r1	; 17
-DDRB=0b11111111; //Seting Part B as an Output part
+
+0000006e <.Loc.3>:
+    PORTD = 0b11111111;             // Enable pull-ups on Port D
   6e:	8f ef       	ldi	r24, 0xFF	; 255
-  70:	87 bb       	out	0x17, r24	; 23
-PORTD=0b11111111; //Pulling up all the pins of part B
-  72:	82 bb       	out	0x12, r24	; 18
-PORTB=0b00001001;
-_delay_ms(300);
-}
-if(c==0b11111100) //Obstacle to the center and right
-{
-PORTB=0b00000101; //Go back and turn left
-  74:	65 e0       	ldi	r22, 0x05	; 5
-    milliseconds can be achieved.
- */
-void
-_delay_loop_2(uint16_t __count)
-{
-	__asm__ volatile (
-  76:	49 e1       	ldi	r20, 0x19	; 25
-  78:	50 e0       	ldi	r21, 0x00	; 0
-_delay_ms(300);
-PORTB=0b00000110;
-  7a:	76 e0       	ldi	r23, 0x06	; 6
-PORTB=0b00000110; //Turn Left
-if(c==0b00000101)
-{
-PORTB=0b00000101; //Go back and turn right
-_delay_ms(300);
-PORTB=0b00001001;
-  7c:	a9 e0       	ldi	r26, 0x09	; 9
-DDRB=0b11111111; //Seting Part B as an Output part
-PORTD=0b11111111; //Pulling up all the pins of part B
-int c;
-while(1)
-{
-c=PIND;
-  7e:	80 b3       	in	r24, 0x10	; 16
-  80:	90 e0       	ldi	r25, 0x00	; 0
-if(c==0b11111111) //No obstacle
-  82:	8f 3f       	cpi	r24, 0xFF	; 255
-  84:	91 05       	cpc	r25, r1
-  86:	11 f4       	brne	.+4      	; 0x8c <main+0x20>
-PORTB=0b00000000; //Forward
-  88:	18 ba       	out	0x18, r1	; 24
-  8a:	2f c0       	rjmp	.+94     	; 0xea <main+0x7e>
-if(c==0b00001001) //Obstacle to the right
-  8c:	89 30       	cpi	r24, 0x09	; 9
-  8e:	91 05       	cpc	r25, r1
-  90:	11 f4       	brne	.+4      	; 0x96 <main+0x2a>
-PORTB=0b00000110; //Turn Left
-  92:	78 bb       	out	0x18, r23	; 24
-  94:	2f c0       	rjmp	.+94     	; 0xf4 <main+0x88>
-if(c==0b00000101)
-  96:	85 30       	cpi	r24, 0x05	; 5
-  98:	91 05       	cpc	r25, r1
-  9a:	99 f4       	brne	.+38     	; 0xc2 <main+0x56>
-{
-PORTB=0b00000101; //Go back and turn right
-  9c:	68 bb       	out	0x18, r22	; 24
-  9e:	28 eb       	ldi	r18, 0xB8	; 184
-  a0:	3b e0       	ldi	r19, 0x0B	; 11
-  a2:	fa 01       	movw	r30, r20
-  a4:	31 97       	sbiw	r30, 0x01	; 1
-  a6:	f1 f7       	brne	.-4      	; 0xa4 <main+0x38>
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
-  a8:	21 50       	subi	r18, 0x01	; 1
-  aa:	30 40       	sbci	r19, 0x00	; 0
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-  ac:	d1 f7       	brne	.-12     	; 0xa2 <main+0x36>
-_delay_ms(300);
-PORTB=0b00001001;
-  ae:	a8 bb       	out	0x18, r26	; 24
-  b0:	28 eb       	ldi	r18, 0xB8	; 184
-  b2:	3b e0       	ldi	r19, 0x0B	; 11
-  b4:	fa 01       	movw	r30, r20
-  b6:	31 97       	sbiw	r30, 0x01	; 1
-  b8:	f1 f7       	brne	.-4      	; 0xb6 <main+0x4a>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
-  ba:	21 50       	subi	r18, 0x01	; 1
-  bc:	30 40       	sbci	r19, 0x00	; 0
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-  be:	d1 f7       	brne	.-12     	; 0xb4 <main+0x48>
-  c0:	41 c0       	rjmp	.+130    	; 0x144 <main+0xd8>
-_delay_ms(300);
-}
-if(c==0b11111100) //Obstacle to the center and right
-  c2:	8c 3f       	cpi	r24, 0xFC	; 252
-  c4:	91 05       	cpc	r25, r1
-  c6:	89 f4       	brne	.+34     	; 0xea <main+0x7e>
-{
-PORTB=0b00000101; //Go back and turn left
-  c8:	68 bb       	out	0x18, r22	; 24
-  ca:	88 eb       	ldi	r24, 0xB8	; 184
-  cc:	9b e0       	ldi	r25, 0x0B	; 11
-  ce:	fa 01       	movw	r30, r20
-  d0:	31 97       	sbiw	r30, 0x01	; 1
-  d2:	f1 f7       	brne	.-4      	; 0xd0 <main+0x64>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
-  d4:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-  d6:	d9 f7       	brne	.-10     	; 0xce <main+0x62>
-_delay_ms(300);
-PORTB=0b00000110;
-  d8:	78 bb       	out	0x18, r23	; 24
-  da:	88 eb       	ldi	r24, 0xB8	; 184
-  dc:	9b e0       	ldi	r25, 0x0B	; 11
-  de:	fa 01       	movw	r30, r20
-  e0:	31 97       	sbiw	r30, 0x01	; 1
-  e2:	f1 f7       	brne	.-4      	; 0xe0 <main+0x74>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
-  e4:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-  e6:	d9 f7       	brne	.-10     	; 0xde <main+0x72>
-  e8:	ca cf       	rjmp	.-108    	; 0x7e <main+0x12>
-_delay_ms(300);
-}
-if(c==0b11110111) //Obstacle to the left
-  ea:	87 3f       	cpi	r24, 0xF7	; 247
-  ec:	91 05       	cpc	r25, r1
-  ee:	11 f4       	brne	.+4      	; 0xf4 <main+0x88>
-PORTB=0b00001001; //Turn Right
-  f0:	a8 bb       	out	0x18, r26	; 24
-  f2:	c5 cf       	rjmp	.-118    	; 0x7e <main+0x12>
-if(c==0b11111010) //Obstacle on both sides of the robot
-  f4:	8a 3f       	cpi	r24, 0xFA	; 250
-  f6:	91 05       	cpc	r25, r1
-  f8:	89 f4       	brne	.+34     	; 0x11c <main+0xb0>
-{
-PORTB=0b00000101;//Go back and turn right
-  fa:	68 bb       	out	0x18, r22	; 24
-  fc:	88 eb       	ldi	r24, 0xB8	; 184
-  fe:	9b e0       	ldi	r25, 0x0B	; 11
- 100:	fa 01       	movw	r30, r20
- 102:	31 97       	sbiw	r30, 0x01	; 1
- 104:	f1 f7       	brne	.-4      	; 0x102 <main+0x96>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 106:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 108:	d9 f7       	brne	.-10     	; 0x100 <main+0x94>
-_delay_ms(300);
-PORTB=0b00000110;
- 10a:	78 bb       	out	0x18, r23	; 24
- 10c:	88 eb       	ldi	r24, 0xB8	; 184
- 10e:	9b e0       	ldi	r25, 0x0B	; 11
- 110:	fa 01       	movw	r30, r20
- 112:	31 97       	sbiw	r30, 0x01	; 1
- 114:	f1 f7       	brne	.-4      	; 0x112 <main+0xa6>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 116:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 118:	d9 f7       	brne	.-10     	; 0x110 <main+0xa4>
- 11a:	b1 cf       	rjmp	.-158    	; 0x7e <main+0x12>
-_delay_ms(300);
-}
-if(c==0b11111001) //Obstacle on the center and left
- 11c:	89 3f       	cpi	r24, 0xF9	; 249
- 11e:	91 05       	cpc	r25, r1
- 120:	89 f4       	brne	.+34     	; 0x144 <main+0xd8>
-{
-PORTB=0b00000101; //Go back and turn right
- 122:	68 bb       	out	0x18, r22	; 24
- 124:	88 eb       	ldi	r24, 0xB8	; 184
- 126:	9b e0       	ldi	r25, 0x0B	; 11
- 128:	fa 01       	movw	r30, r20
- 12a:	31 97       	sbiw	r30, 0x01	; 1
- 12c:	f1 f7       	brne	.-4      	; 0x12a <main+0xbe>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 12e:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 130:	d9 f7       	brne	.-10     	; 0x128 <main+0xbc>
-_delay_ms(300);
-PORTB=0b00000110;
- 132:	78 bb       	out	0x18, r23	; 24
- 134:	88 eb       	ldi	r24, 0xB8	; 184
- 136:	9b e0       	ldi	r25, 0x0B	; 11
- 138:	fa 01       	movw	r30, r20
- 13a:	31 97       	sbiw	r30, 0x01	; 1
- 13c:	f1 f7       	brne	.-4      	; 0x13a <main+0xce>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 13e:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 140:	d9 f7       	brne	.-10     	; 0x138 <main+0xcc>
- 142:	9d cf       	rjmp	.-198    	; 0x7e <main+0x12>
-_delay_ms(300);
-}
-if(c==0b11111000) //Obstacle on all sides
- 144:	88 3f       	cpi	r24, 0xF8	; 248
- 146:	91 05       	cpc	r25, r1
- 148:	09 f0       	breq	.+2      	; 0x14c <main+0xe0>
- 14a:	99 cf       	rjmp	.-206    	; 0x7e <main+0x12>
+  70:	82 bb       	out	0x12, r24	; 18
 
-{
-PORTB=0b00000101; //U turn
- 14c:	68 bb       	out	0x18, r22	; 24
- 14e:	88 eb       	ldi	r24, 0xB8	; 184
- 150:	9b e0       	ldi	r25, 0x0B	; 11
- 152:	fa 01       	movw	r30, r20
- 154:	31 97       	sbiw	r30, 0x01	; 1
- 156:	f1 f7       	brne	.-4      	; 0x154 <main+0xe8>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 158:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 15a:	d9 f7       	brne	.-10     	; 0x152 <main+0xe6>
-_delay_ms(300);
-PORTB=0b00001001;
- 15c:	a8 bb       	out	0x18, r26	; 24
- 15e:	80 e2       	ldi	r24, 0x20	; 32
- 160:	9e e4       	ldi	r25, 0x4E	; 78
- 162:	fa 01       	movw	r30, r20
- 164:	31 97       	sbiw	r30, 0x01	; 1
- 166:	f1 f7       	brne	.-4      	; 0x164 <main+0xf8>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 168:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 16a:	d9 f7       	brne	.-10     	; 0x162 <main+0xf6>
- 16c:	88 cf       	rjmp	.-240    	; 0x7e <main+0x12>
+00000072 <.Loc.5>:
+    DDRB  = 0b11111111;             // Port B is an output port
+  72:	87 bb       	out	0x17, r24	; 23
 
-0000016e <_exit>:
- 16e:	f8 94       	cli
+00000074 <.Loc.7>:
+            case OBSTACLE_CENTRE_AUX:
+                back_off_and_turn(MOTOR_RIGHT);
+                break;
 
-00000170 <__stop_program>:
- 170:	ff cf       	rjmp	.-2      	; 0x170 <__stop_program>
+            case OBSTACLE_ALL:
+                PORTB = MOTOR_RIGHT;        // Boxed in: turn until clear
+  74:	89 e0       	ldi	r24, 0x09	; 9
+
+00000076 <.LBB22>:
+    PORTB = MOTOR_BACKWARD;
+  76:	95 e0       	ldi	r25, 0x05	; 5
+
+00000078 <.LBB31>:
+    PORTB = turn;
+  78:	26 e0       	ldi	r18, 0x06	; 6
+
+0000007a <.LBE31>:
+                PORTB = MOTOR_FORWARD;
+  7a:	4a e0       	ldi	r20, 0x0A	; 10
+
+0000007c <.L12>:
+        switch (PIND)
+  7c:	30 b3       	in	r19, 0x10	; 16
+
+0000007e <.Loc.14>:
+  7e:	eb e0       	ldi	r30, 0x0B	; 11
+  80:	e3 0f       	add	r30, r19
+  82:	35 3f       	cpi	r19, 0xF5	; 245
+  84:	d8 f3       	brcs	.-10     	; 0x7c <.L12>
+  86:	f0 e0       	ldi	r31, 0x00	; 0
+  88:	e0 58       	subi	r30, 0x80	; 128
+  8a:	ff 4f       	sbci	r31, 0xFF	; 255
+  8c:	0c 94 78 00 	jmp	0xf0	; 0xf0 <__tablejump2__>
+
+00000090 <.L4>:
+                PORTB = MOTOR_FORWARD;
+  90:	48 bb       	out	0x18, r20	; 24
+
+00000092 <.Loc.17>:
+                break;
+  92:	f4 cf       	rjmp	.-24     	; 0x7c <.L12>
+
+00000094 <.L6>:
+                PORTB = MOTOR_LEFT;
+  94:	28 bb       	out	0x18, r18	; 24
+
+00000096 <.Loc.20>:
+                break;
+  96:	f2 cf       	rjmp	.-28     	; 0x7c <.L12>
+
+00000098 <.L8>:
+                PORTB = MOTOR_RIGHT;
+  98:	88 bb       	out	0x18, r24	; 24
+
+0000009a <.Loc.23>:
+                break;
+  9a:	f0 cf       	rjmp	.-32     	; 0x7c <.L12>
+
+0000009c <.L7>:
+    PORTB = MOTOR_BACKWARD;
+  9c:	98 bb       	out	0x18, r25	; 24
+
+0000009e <.LBB33>:
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(__builtin_ceil(__builtin_fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  9e:	3f e5       	ldi	r19, 0x5F	; 95
+  a0:	5a ee       	ldi	r21, 0xEA	; 234
+  a2:	60 e0       	ldi	r22, 0x00	; 0
+
+000000a4 <.L1^B1>:
+  a4:	31 50       	subi	r19, 0x01	; 1
+  a6:	50 40       	sbci	r21, 0x00	; 0
+  a8:	60 40       	sbci	r22, 0x00	; 0
+  aa:	e1 f7       	brne	.-8      	; 0xa4 <.L1^B1>
+  ac:	00 c0       	rjmp	.+0      	; 0xae <L0^A>
+
+000000ae <L0^A>:
+  ae:	00 00       	nop
+
+000000b0 <.LBE33>:
+    PORTB = turn;
+  b0:	28 bb       	out	0x18, r18	; 24
+
+000000b2 <.L13>:
+  b2:	3f e5       	ldi	r19, 0x5F	; 95
+  b4:	5a ee       	ldi	r21, 0xEA	; 234
+  b6:	60 e0       	ldi	r22, 0x00	; 0
+
+000000b8 <.L1^B2>:
+  b8:	31 50       	subi	r19, 0x01	; 1
+  ba:	50 40       	sbci	r21, 0x00	; 0
+  bc:	60 40       	sbci	r22, 0x00	; 0
+  be:	e1 f7       	brne	.-8      	; 0xb8 <.L1^B2>
+
+000000c0 <.L14>:
+  c0:	00 c0       	rjmp	.+0      	; 0xc2 <L0^A>
+
+000000c2 <L0^A>:
+  c2:	00 00       	nop
+
+000000c4 <.LBB40>:
+}
+  c4:	db cf       	rjmp	.-74     	; 0x7c <.L12>
+
+000000c6 <.L9>:
+    PORTB = MOTOR_BACKWARD;
+  c6:	98 bb       	out	0x18, r25	; 24
+
+000000c8 <.LBB26>:
+  c8:	3f e5       	ldi	r19, 0x5F	; 95
+  ca:	5a ee       	ldi	r21, 0xEA	; 234
+  cc:	60 e0       	ldi	r22, 0x00	; 0
+
+000000ce <.L1^B3>:
+  ce:	31 50       	subi	r19, 0x01	; 1
+  d0:	50 40       	sbci	r21, 0x00	; 0
+  d2:	60 40       	sbci	r22, 0x00	; 0
+  d4:	e1 f7       	brne	.-8      	; 0xce <.L1^B3>
+  d6:	00 c0       	rjmp	.+0      	; 0xd8 <L0^A>
+
+000000d8 <L0^A>:
+  d8:	00 00       	nop
+
+000000da <.LBE26>:
+    PORTB = turn;
+  da:	88 bb       	out	0x18, r24	; 24
+  dc:	ea cf       	rjmp	.-44     	; 0xb2 <.L13>
+
+000000de <.L10>:
+                PORTB = MOTOR_RIGHT;        // Boxed in: turn until clear
+  de:	88 bb       	out	0x18, r24	; 24
+
+000000e0 <.LBB42>:
+  e0:	3f e7       	ldi	r19, 0x7F	; 127
+  e2:	5a e1       	ldi	r21, 0x1A	; 26
+  e4:	66 e0       	ldi	r22, 0x06	; 6
+
+000000e6 <.L1^B4>:
+  e6:	31 50       	subi	r19, 0x01	; 1
+  e8:	50 40       	sbci	r21, 0x00	; 0
+  ea:	60 40       	sbci	r22, 0x00	; 0
+  ec:	e1 f7       	brne	.-8      	; 0xe6 <.L1^B4>
+  ee:	e8 cf       	rjmp	.-48     	; 0xc0 <.L14>
+
+000000f0 <__tablejump2__>:
+  f0:	ee 0f       	add	r30, r30
+
+000000f2 <.Loc.1>:
+  f2:	ff 1f       	adc	r31, r31
+
+000000f4 <.Loc.2>:
+  f4:	05 90       	lpm	r0, Z+
+
+000000f6 <.Loc.3>:
+  f6:	f4 91       	lpm	r31, Z
+
+000000f8 <.Loc.4>:
+  f8:	e0 2d       	mov	r30, r0
+
+000000fa <.Loc.5>:
+  fa:	09 94       	ijmp
+
+000000fc <_exit>:
+  fc:	f8 94       	cli
+
+000000fe <__stop_program>:
+  fe:	ff cf       	rjmp	.-2      	; 0xfe <__stop_program>
+
+00000100 <L0^A>:
+ 100:	63 00       	.word	0x0063	; ????
+ 102:	3e 00       	.word	0x003e	; ????
+ 104:	3e 00       	.word	0x003e	; ????
+ 106:	6f 00       	.word	0x006f	; ????
+ 108:	63 00       	.word	0x0063	; ????
+ 10a:	4e 00       	.word	0x004e	; ????
+ 10c:	4c 00       	.word	0x004c	; ????
+ 10e:	4e 00       	.word	0x004e	; ????
+ 110:	4e 00       	.word	0x004e	; ????
+ 112:	4a 00       	.word	0x004a	; ????
+ 114:	48 00       	.word	0x0048	; ????
